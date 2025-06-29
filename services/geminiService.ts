@@ -2,16 +2,15 @@ import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
 
 let ai: GoogleGenAI | null = null;
 
-const getAi = (): GoogleGenAI => {
+// The getAi function now accepts the key to avoid reading from the environment directly.
+const getAi = (apiKey: string): GoogleGenAI => {
     if (ai) {
         return ai;
     }
-    // Ensure the API key is available from environment variables
-    if (!process.env.API_KEY) {
-        // This will be caught by the calling function and displayed in the UI.
-        throw new Error("API_KEY environment variable not set. Please configure it in your hosting environment.");
+    if (!apiKey) {
+        throw new Error("API key is not provided.");
     }
-    ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    ai = new GoogleGenAI({ apiKey: apiKey });
     return ai;
 };
 
@@ -31,7 +30,8 @@ const fileToGenerativePart = async (file: File) => {
 };
 
 // Internal function to describe an image using a Gemini model.
-const describeImageForGeneration = async (imagePart: { inlineData: { data: string; mimeType:string; } }) => {
+// It now accepts the apiKey to pass to the getAi function.
+const describeImageForGeneration = async (imagePart: { inlineData: { data: string; mimeType:string; } }, apiKey: string) => {
     const model = 'gemini-2.5-flash-preview-04-17';
     const prompt = `You are a master artist's assistant, tasked with creating a detailed description of the character AND their environment from the provided image. This description will be used by another AI to generate 16-bit pixel art. Precision is paramount.
 
@@ -40,7 +40,7 @@ const describeImageForGeneration = async (imagePart: { inlineData: { data: strin
     1.  **ANALYZE CHARACTER - START WITH HEADWEAR:**
         *   **Headwear is critical:** Scrutinize it. Is it a **cap** (like a baseball cap)? State the type and how it's worn. Example: "a yellow and black trucker cap worn backwards". Is it a **beanie**? Describe it as such.
         *   **STRICT PROHIBITION:** You MUST NOT describe a cap as a 'bandana' or 'headband'. Failure to distinguish this correctly will ruin the result.
-        *   **Text & Logos:** Meticulously find and transcribe EVERY piece of text and EVERY logo on all clothing and accessories. Be EXACT. Quote text precisely. Example: "On the cap is a Gadsden snake logo and text 'DON'T TREAD ON ME'."
+        *   **Text & Logos:** Meticulously find and EVERY piece of text and EVERY logo on all clothing and accessories. Be EXACT. Quote text precisely. Example: "On the cap is a Gadsden snake logo and text 'DON'T TREAD ON ME'."
         *   **Other Attire:** Detail every other item: "white-framed sunglasses", "a simple white tank top".
         *   **Physical Features:** Briefly describe hair, eyes, and expression.
 
@@ -54,7 +54,7 @@ const describeImageForGeneration = async (imagePart: { inlineData: { data: strin
     **Final Output Format:**
     Combine all character and background observations into a single, comprehensive descriptive paragraph. This is your ONLY output.`;
     
-    const response: GenerateContentResponse = await getAi().models.generateContent({
+    const response: GenerateContentResponse = await getAi(apiKey).models.generateContent({
         model: model,
         contents: { parts: [imagePart, { text: prompt }] },
         config: { thinkingConfig: { thinkingBudget: 0 } } // Optimize for speed
@@ -64,12 +64,13 @@ const describeImageForGeneration = async (imagePart: { inlineData: { data: strin
 };
 
 // Internal function to generate an image using Imagen from a text prompt.
-const generateImageFromText = async (prompt: string) => {
-  const enhancedPrompt = `Authentic 16-bit pixel art in the style of a late 1980s Sega Genesis/Mega Drive game. Punchy, vibrant colors from a constrained palette. Sharp, defined pixel work with character sprites that stand out. No anti-aliasing, no text, watermarks or labels on the final image. --style raw.
+// It now accepts the apiKey to pass to the getAi function.
+const generateImageFromText = async (prompt: string, apiKey: string) => {
+  const enhancedPrompt = `Authentic 16-bit pixel art in the style of a late 1980s Sega Genesis/Mega Drive game like 'Streets of Rage' or 'Sonic the Hedgehog'. Punchy, vibrant colors from a constrained palette, using dithering to create gradients and texture. Sharp, defined pixel work with character sprites that stand out clearly from the background. No anti-aliasing, no text, watermarks or labels on the final image. --style raw.
 
 Scene description: ${prompt}`;
 
-  const response = await getAi().models.generateImages({
+  const response = await getAi(apiKey).models.generateImages({
     model: 'imagen-3.0-generate-002',
     prompt: enhancedPrompt,
     config: { numberOfImages: 1, outputMimeType: 'image/png' },
@@ -88,16 +89,20 @@ Scene description: ${prompt}`;
  * Generates pixel art from a source image. It works by first describing the image
  * and then feeding that description into the image generator.
  * @param sourceFile A source image file for image-to-image generation.
+ * @param apiKey The Google AI API key.
  * @returns A base64 encoded data URL of the generated PNG image.
  */
-export const generatePixelArt = async (sourceFile: File): Promise<string> => {
+export const generatePixelArt = async (sourceFile: File, apiKey: string): Promise<string> => {
+  if (!apiKey) {
+      throw new Error("API Key is missing. Please configure it.");
+  }
   try {
     // Image-to-Image flow is now the only flow
     const imagePart = await fileToGenerativePart(sourceFile);
-    const imageDescription = await describeImageForGeneration(imagePart);
+    const imageDescription = await describeImageForGeneration(imagePart, apiKey);
     
     // The image description becomes the prompt for the image generator.
-    return await generateImageFromText(imageDescription);
+    return await generateImageFromText(imageDescription, apiKey);
 
   } catch (error) {
      console.error("Error in generatePixelArt service:", error);

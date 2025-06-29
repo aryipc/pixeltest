@@ -7,9 +7,49 @@ import { generatePixelArt } from './services/geminiService';
 
 const LOCAL_STORAGE_KEY = 'pixelArtState_v1';
 
-// A check to see if we are in a production environment (like Vercel) and the API key is missing.
-// We check for production mode via NODE_ENV, a standard environment variable.
-const isApiKeyMissing = process.env.NODE_ENV === 'production' && !process.env.API_KEY;
+const apiKey = (import.meta as any)?.env?.VITE_API_KEY;
+
+const ApiKeyErrorMessage: React.FC = () => (
+    <div className="flex-grow flex flex-col items-center justify-center text-center p-4 m-4 border-2 border-dashed border-red-500 rounded-lg bg-red-900/20">
+        <h2 className="text-2xl font-bold text-red-400">Configuration Error</h2>
+        <p className="mt-2 text-lg text-red-300">The Google AI API key is missing.</p>
+        
+        <div className="mt-6 text-left max-w-lg space-y-6 text-md text-gray-400">
+            <div>
+                <h3 className="font-bold text-cyan-400">For Local & Preview Environments:</h3>
+                <p className="mt-1">
+                    Create a file named <code className="bg-gray-700 text-fuchsia-400 p-1 rounded font-mono">.env.local</code> in the project's root directory.
+                </p>
+                <p className="mt-2">Add your API key to this file:</p>
+                <pre className="mt-2 text-left bg-gray-800 p-3 rounded-lg text-sm text-white font-mono">
+                    VITE_API_KEY=YOUR_API_KEY_HERE
+                </pre>
+            </div>
+            
+            <div>
+                <h3 className="font-bold text-cyan-400">For Deployed Environments (e.g., Vercel):</h3>
+                 <p className="mt-1">
+                    In your hosting provider's dashboard, navigate to the project's <strong className="text-white">Environment Variables</strong> settings.
+                </p>
+                 <p className="mt-2">
+                    Add the following variable:
+                </p>
+                 <div className="mt-2 bg-gray-800 p-3 rounded-lg space-y-2">
+                    <div>
+                        <span className="text-gray-300">Name: </span>
+                        <code className="bg-gray-700 text-fuchsia-400 p-1 rounded font-mono">VITE_API_KEY</code>
+                    </div>
+                    <div>
+                        <span className="text-gray-300">Value: </span>
+                        <code className="bg-gray-700 text-white p-1 rounded font-mono">[Your actual API key]</code>
+                    </div>
+                 </div>
+                 <p className="text-xs mt-2 text-gray-500">Note: You may need to redeploy for the change to take effect.</p>
+            </div>
+        </div>
+    </div>
+);
+
 
 // Helper to read file as base64 for preview
 const getBase64 = (file: File): Promise<string> => {
@@ -118,14 +158,14 @@ const App: React.FC = () => {
   }, []);
 
   const handleGenerateClick = useCallback(async () => {
-    if (!sourceImage || isLoading) return;
+    if (!sourceImage || isLoading || !apiKey) return;
 
     setIsLoading(true);
     setError(null);
     setImageUrl(null);
 
     try {
-      const url = await generatePixelArt(sourceImage.file);
+      const url = await generatePixelArt(sourceImage.file, apiKey);
       setImageUrl(url);
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
@@ -141,17 +181,8 @@ const App: React.FC = () => {
       <div className="w-full max-w-2xl mx-auto flex flex-col flex-grow">
         <Header />
         
-        {isApiKeyMissing ? (
-            <div className="flex-grow flex flex-col items-center justify-center text-center p-4 m-4 border-2 border-dashed border-red-500 rounded-lg bg-red-900/20">
-                <h2 className="text-2xl font-bold text-red-400">Configuration Error</h2>
-                <p className="mt-2 text-lg text-red-300">The Gemini API key is missing.</p>
-                <p className="mt-4 text-md text-gray-400">
-                    This application has been deployed, but the required <strong>API_KEY</strong> has not been set in the hosting environment (e.g., Vercel, Netlify).
-                </p>
-                 <p className="mt-2 text-md text-gray-400">
-                    Please go to your project's dashboard, find the 'Environment Variables' settings, and add a variable named <code className="bg-gray-700 text-fuchsia-400 p-1 rounded">API_KEY</code> with your Google AI API key.
-                </p>
-            </div>
+        {!apiKey ? (
+            <ApiKeyErrorMessage />
         ) : (
             <main className="flex-grow flex flex-col items-center w-full">
             <ImageUploader
