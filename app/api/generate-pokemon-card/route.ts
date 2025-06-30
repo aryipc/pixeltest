@@ -43,24 +43,25 @@ export async function POST(request: Request) {
 
     const imagePart = await fileToGenerativePart(imageFile);
 
+    // Step 1: Generate structured card data using the vision model.
     const promptForVisionModel = `You are a creative assistant that designs Pokémon cards. Analyze the user's image and invent the details for a new Pokémon.
 
     **YOUR TASK:**
     Based on the image, generate a JSON object with the following structure:
     {
-      "subject_description": "A detailed visual description of the main subject in the user's image. For example: 'A grand piano with a glossy black finish, standing on a stage.'",
-      "pokemon_name": "A creative, one- or two-word Pokémon name for the subject. e.g., 'Pianorte'",
-      "hp": "An HP value between 60 and 120. e.g., 80",
-      "pokemon_type": "A standard Pokémon type. e.g., 'Steel'",
-      "attack_1_name": "Name of a single attack. e.g., 'Chord Strike'",
-      "attack_1_description": "A very short (10-15 words) description of the attack's effect. e.g., 'Plays a powerful chord that resonates. This attack's damage isn't affected by Resistance.'",
-      "attack_1_damage": "The damage number for the attack. e.g., 50",
-      "pokedex_entry": "A short, creative Pokédex-style description (15-20 words). e.g., 'This Pokémon's melodies can soothe even the most aggressive spirits, but its dissonant chords can shatter rock.'"
+      "subject_description": "A detailed visual description of the main subject in the user's image. For example: 'A cute, small white dog wearing a traditional pink and red floral kimono.'",
+      "pokemon_name": "A creative, one- or two-word Pokémon name for the subject. e.g., 'Kimoninu'",
+      "hp": "An HP value between 60 and 120. e.g., 70",
+      "pokemon_type": "A standard Pokémon type from this list: Grass, Fire, Water, Lightning, Psychic, Fighting, Colorless, Darkness, Metal, Dragon, Fairy. e.g., 'Fairy'",
+      "attack_1_name": "Name of a single attack. e.g., 'Charming Gaze'",
+      "attack_1_description": "A very short (10-15 words) description of the attack's effect. e.g., 'The opposing Pokémon is now Paralyzed by its cuteness.'",
+      "attack_1_damage": "The damage number for the attack (a multiple of 10). e.g., 40",
+      "pokedex_entry": "A short, creative Pokédex-style description (15-20 words). e.g., 'This Pokémon is adored for its elegant appearance and gentle nature. It often brings good fortune to its trainer.'"
     }
 
     **RULES:**
     - All text values in the JSON must be in perfect, correctly-spelled English.
-    - Be creative and stick to the Pokémon theme.
+    - The pokemon_type MUST be one of the provided options.
     - Your output MUST be ONLY the JSON object, with no other text, comments, or markdown formatting.`;
 
     const visionResponse = await ai.models.generateContent({
@@ -87,48 +88,35 @@ export async function POST(request: Request) {
         throw new Error("The AI failed to generate valid card data. Please try again.");
     }
     
-    const detailedPrompt = `Photorealistic, masterpiece, high-detail, professional trading card game art. A complete Pokémon TCG card in the classic 1999 base set style. The main artwork features: ${cardData.subject_description}.
-
-**CRITICAL TEXT RENDERING INSTRUCTIONS:**
-- The Pokémon's name on the card MUST be EXACTLY: "${cardData.pokemon_name}"
-- The HP in the top-right corner MUST be EXACTLY: "${cardData.hp} HP"
-- The type of the pokemon is: "${cardData.pokemon_type}"
-- The first attack's name MUST be EXACTLY: "${cardData.attack_1_name}"
-- The first attack's damage MUST be EXACTLY: "${cardData.attack_1_damage}"
-- The first attack's description text MUST be: "${cardData.attack_1_description}"
-- The Pokédex entry text at the bottom MUST be: "${cardData.pokedex_entry}"
-
-**ABSOLUTE MANDATORY REQUIREMENT:** ALL text on the card must be perfectly rendered, crisp, legible, and spelled correctly in English. THERE MUST BE NO GIBBERISH, ARTIFACTS, OR MISSPELLED WORDS. The text content must match the instructions above exactly. This is the highest priority.`;
+    // Step 2: Generate only the Pokémon's artwork using the image model.
+    const artworkPrompt = `Masterpiece, professional trading card game art. A square illustration of the following character: "${cardData.subject_description}".
+The character MUST be in the style of a classic Pokémon.
+The background should be simple, thematically matching a ${cardData.pokemon_type}-type Pokémon.
+The image should be a centered, full-body shot of the character.
+Do NOT include any text, borders, or card elements. ONLY the artwork.`;
 
     const imageResponse = await ai.models.generateImages({
         model: imageModel,
-        prompt: detailedPrompt,
+        prompt: artworkPrompt,
         config: { 
             numberOfImages: 1,
             outputMimeType: 'image/jpeg',
-            aspectRatio: '3:4',
+            aspectRatio: '1:1', // Square artwork
         },
     });
 
-    if (imageResponse.generatedImages && imageResponse.generatedImages.length > 0) {
-        const imageUrls = imageResponse.generatedImages.reduce<string[]>((acc, img) => {
-            const base64ImageBytes = img.image?.imageBytes;
-            if (base64ImageBytes) {
-                acc.push(`data:image/jpeg;base64,${base64ImageBytes}`);
-            }
-            return acc;
-        }, []);
+    const base64ImageBytes = imageResponse.generatedImages?.[0]?.image?.imageBytes;
 
-        if (imageUrls.length === 0) {
-            throw new Error("The API returned image objects but they contained no data.");
-        }
-        
-        return new Response(JSON.stringify({ imageUrls }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' }
-        });
+    if (base64ImageBytes) {
+      const artworkUrl = `data:image/jpeg;base64,${base64ImageBytes}`;
+      
+      return new Response(JSON.stringify({ cardData, artworkUrl }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+      });
+
     } else {
-        throw new Error("No images were generated by the API.");
+        throw new Error("No artwork was generated by the API.");
     }
   } catch (error) {
     console.error("Error in Pokémon card generation process:", error);

@@ -1,5 +1,22 @@
 
-export async function generatePokemonCard(imageFile: File): Promise<string[]> {
+export interface CardData {
+  subject_description: string;
+  pokemon_name: string;
+  hp: string;
+  pokemon_type: string;
+  attack_1_name: string;
+  attack_1_description: string;
+  attack_1_damage: string;
+  pokedex_entry: string;
+}
+
+export interface GenerationResult {
+  cardData: CardData;
+  artworkUrl: string;
+}
+
+
+export async function generatePokemonCard(imageFile: File): Promise<GenerationResult> {
   const formData = new FormData();
   formData.append('image', imageFile);
 
@@ -14,11 +31,11 @@ export async function generatePokemonCard(imageFile: File): Promise<string[]> {
       throw new Error(errorData.message || `Server error: ${response.status}`);
     }
 
-    const result = await response.json();
-    if (!result.imageUrls) {
-        throw new Error("The server response did not contain image URLs.");
+    const result: GenerationResult = await response.json();
+    if (!result.cardData || !result.artworkUrl) {
+        throw new Error("The server response was incomplete.");
     }
-    return result.imageUrls;
+    return result;
   } catch (error) {
     console.error("Error calling backend service:", error);
     if (error instanceof Error) {

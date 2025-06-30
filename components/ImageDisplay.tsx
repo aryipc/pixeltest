@@ -1,11 +1,14 @@
 
 "use client";
 
-import React, { useState } from 'react';
+import React, { useRef, useCallback } from 'react';
+import { toPng } from 'html-to-image';
 import Loader from './Loader';
+import PokemonCard from './PokemonCard';
+import type { GenerationResult } from '../services/geminiService';
 
 interface ImageDisplayProps {
-  imageUrls: string[] | null;
+  generationResult: GenerationResult | null;
   isLoading: boolean;
 }
 
@@ -18,70 +21,47 @@ const Placeholder = () => (
   </div>
 );
 
-const ImageDisplay: React.FC<ImageDisplayProps> = ({ imageUrls, isLoading }) => {
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading }) => {
+  const cardRef = useRef<HTMLDivElement>(null);
 
-  // The main image to display is always the first one from the array.
-  const mainImageUrl = imageUrls?.[0];
+  const handleDownload = useCallback(() => {
+    if (cardRef.current === null) {
+      return;
+    }
 
-  const handleDownload = () => {
-    if (!selectedImage) return;
-    const link = document.createElement('a');
-    link.href = selectedImage;
-    link.download = `pokemon-card-${Date.now()}.jpeg`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+    toPng(cardRef.current, { cacheBust: true, pixelRatio: 2 })
+      .then((dataUrl) => {
+        const link = document.createElement('a');
+        const name = generationResult?.cardData?.pokemon_name || 'pokemon-card';
+        link.download = `${name.toLowerCase().replace(/\s/g, '-')}.png`;
+        link.href = dataUrl;
+        link.click();
+      })
+      .catch((err) => {
+        console.error('Failed to download card image', err);
+      });
+  }, [generationResult]);
 
   return (
     <div className="w-full p-4 bg-[#2c2c54] border-2 border-purple-500 rounded-lg shadow-lg flex flex-col gap-4 h-full">
       <h2 className="text-xl text-center text-yellow-300">Output</h2>
       <div className="w-full aspect-[3/4] bg-[#131325] border-2 border-cyan-400 rounded-lg flex items-center justify-center overflow-hidden">
         {isLoading && <Loader />}
-        {!isLoading && mainImageUrl && (
-          <div className="w-full h-full p-2 cursor-pointer" onClick={() => setSelectedImage(mainImageUrl)}>
-            <img
-              src={mainImageUrl}
-              alt="Generated Pokémon card"
-              className="w-full h-full object-contain rounded-md transition-transform duration-200 hover:scale-105"
-            />
-          </div>
+        {!isLoading && generationResult && (
+          <PokemonCard ref={cardRef} {...generationResult} />
         )}
-        {!isLoading && !mainImageUrl && <Placeholder />}
+        {!isLoading && !generationResult && <Placeholder />}
       </div>
-       <div className="text-center text-xs text-gray-400 h-8 flex items-center justify-center">
-        {mainImageUrl && !isLoading && <p>Click the card to enlarge and download.</p>}
+       <div className="text-center h-10 flex items-center justify-center">
+        {generationResult && !isLoading && (
+            <button
+                onClick={handleDownload}
+                className="w-full mt-auto px-4 py-3 bg-green-600 text-white font-bold rounded-md transition-all duration-200 ease-in-out enabled:hover:bg-green-700 enabled:active:scale-95 disabled:bg-gray-600 disabled:cursor-not-allowed flex items-center justify-center text-sm sm:text-base"
+            >
+                DOWNLOAD CARD
+            </button>
+        )}
       </div>
-
-      {selectedImage && (
-        <div 
-            className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4"
-            onClick={() => setSelectedImage(null)}
-        >
-          <div className="relative bg-[#2c2c54] p-4 rounded-lg shadow-2xl max-w-lg w-full" onClick={(e) => e.stopPropagation()}>
-            <img 
-                src={selectedImage} 
-                alt="Selected Pokémon card" 
-                className="w-full h-auto object-contain rounded-md" 
-            />
-            <div className="mt-4 flex justify-center gap-4">
-               <button
-                    onClick={handleDownload}
-                    className="px-6 py-2 bg-green-600 text-white font-bold rounded-md transition-all duration-200 ease-in-out hover:bg-green-700 active:scale-95 text-sm sm:text-base"
-                >
-                    DOWNLOAD
-                </button>
-                <button
-                    onClick={() => setSelectedImage(null)}
-                    className="px-6 py-2 bg-pink-600 text-white font-bold rounded-md transition-all duration-200 ease-in-out hover:bg-pink-700 active:scale-95 text-sm sm:text-base"
-                >
-                    CLOSE
-                </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

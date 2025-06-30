@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState, useCallback } from 'react';
-import { generatePokemonCard } from '../services/geminiService';
+import { generatePokemonCard, GenerationResult } from '../services/geminiService';
 import Header from '../components/Header';
 import PromptInput from '../components/PromptInput';
 import ImageDisplay from '../components/ImageDisplay';
 
 export default function Home() {
   const [inputImage, setInputImage] = useState<File | null>(null);
-  const [generatedImages, setGeneratedImages] = useState<string[] | null>(null);
+  const [generationResult, setGenerationResult] = useState<GenerationResult | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -20,15 +20,15 @@ export default function Home() {
 
     setIsLoading(true);
     setError(null);
-    setGeneratedImages(null);
+    setGenerationResult(null);
 
     try {
-      const imageUrls = await generatePokemonCard(inputImage);
-      setGeneratedImages(imageUrls);
+      const result = await generatePokemonCard(inputImage);
+      setGenerationResult(result);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
       console.error(err);
-      setError(`Failed to generate image. ${errorMessage}`);
+      setError(`Failed to generate card. ${errorMessage}`);
     } finally {
       setIsLoading(false);
     }
@@ -47,7 +47,7 @@ export default function Home() {
             setInputImage={setInputImage}
           />
           <ImageDisplay
-            imageUrls={generatedImages}
+            generationResult={generationResult}
             isLoading={isLoading}
           />
         </main>
