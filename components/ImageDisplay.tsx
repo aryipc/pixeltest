@@ -21,6 +21,9 @@ const Placeholder = () => (
 const ImageDisplay: React.FC<ImageDisplayProps> = ({ imageUrls, isLoading }) => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
+  // The main image to display is always the first one from the array.
+  const mainImageUrl = imageUrls?.[0];
+
   const handleDownload = () => {
     if (!selectedImage) return;
     const link = document.createElement('a');
@@ -36,19 +39,19 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ imageUrls, isLoading }) => 
       <h2 className="text-xl text-center text-yellow-300">Output</h2>
       <div className="w-full aspect-[3/4] bg-[#131325] border-2 border-cyan-400 rounded-lg flex items-center justify-center overflow-hidden">
         {isLoading && <Loader />}
-        {!isLoading && imageUrls && imageUrls.length > 0 && (
-          <div className="w-full h-full p-2 cursor-pointer" onClick={() => setSelectedImage(imageUrls[0])}>
+        {!isLoading && mainImageUrl && (
+          <div className="w-full h-full p-2 cursor-pointer" onClick={() => setSelectedImage(mainImageUrl)}>
             <img
-              src={imageUrls[0]}
+              src={mainImageUrl}
               alt="Generated Pokémon card"
               className="w-full h-full object-contain rounded-md transition-transform duration-200 hover:scale-105"
             />
           </div>
         )}
-        {!isLoading && (!imageUrls || imageUrls.length === 0) && <Placeholder />}
+        {!isLoading && !mainImageUrl && <Placeholder />}
       </div>
        <div className="text-center text-xs text-gray-400 h-8 flex items-center justify-center">
-        {imageUrls && !isLoading && <p>Click on the card to enlarge and download.</p>}
+        {mainImageUrl && !isLoading && <p>Click the card to enlarge and download.</p>}
       </div>
 
       {selectedImage && (

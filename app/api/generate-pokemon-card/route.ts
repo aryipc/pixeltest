@@ -28,7 +28,6 @@ export async function POST(request: Request) {
   }
 
   // Helper function to convert File to a GoogleGenAI.Part object.
-  // This needs to run on a server environment that supports Buffer.
   const fileToGenerativePart = async (file: File) => {
     const buffer = await file.arrayBuffer();
     const base64EncodedData = Buffer.from(buffer).toString('base64');
@@ -44,34 +43,34 @@ export async function POST(request: Request) {
 
     const imagePart = await fileToGenerativePart(imageFile);
 
-    const promptForVisionModel = `You are an expert prompt engineer for a text-to-image AI. Your task is to create a perfect prompt for Imagen 3 to generate a Pokémon TCG card based on a user's image.
+    const promptForVisionModel = `You are an expert prompt engineer for a text-to-image AI (Imagen 3). Your goal is to create a flawless prompt to generate a single Pokémon TCG card based on a user's image.
 
-**THE ABSOLUTE #1 RULE: The final generated image MUST have perfectly sharp, legible, and correctly spelled English text for all text elements on the card (Name, HP, attacks, descriptions, etc.). Gibberish, misspelled, or blurry text is a failure. This is the most critical instruction.**
+**CRITICAL FAILURE CONDITION:** The generation is an INSTANT FAILURE if any text on the card is illegible, misspelled, garbled, or nonsensical. All text MUST be perfect, readable, and in correctly-spelled English. This is the single most important rule.
 
-Based on the user's image, create a single, cohesive prompt for Imagen 3 by following these steps:
+**INSTRUCTIONS:**
+Analyze the user's image and create a single, detailed paragraph prompt for Imagen 3.
 
-1.  **Invent Pokémon Details**: Create a plausible Pokémon name, HP (e.g., "HP 120"), and a Pokémon type (e.g., Grass, Fire, Water, Electric, Psychic, Fighting).
-2.  **Create Attacks**: Invent two attacks. Each attack needs a name, a short description of its effect, and a damage value (e.g., "Razor Leaf. 40 damage. Flip a coin, if heads this attack does 10 more damage.").
-3.  **Write Pokédex Entry**: Write a short, creative Pokédex-style description based on the subject in the user's image.
-4.  **Describe the Visuals**: Instruct the model to place the subject from the user's image into the card's main artwork frame. The art style of the subject inside the card's frame should be identical to the user's uploaded image. The overall card design should be in the style of the classic Pokémon TCG.
-5.  **Assemble the Final Prompt**: Combine all the details above into a single, detailed paragraph. Start the prompt with phrases that emphasize quality like "masterpiece, high detail, photorealistic". End the prompt by re-stating the critical rule about text.
+1.  **Analyze and Describe:** Look at the main subject in the user's image. Describe its appearance for the art generation (e.g., "A small, fierce rabbit-like creature in a green samurai outfit, wielding two small katanas").
+2.  **Invent Pokémon Details**: Based on the subject, invent a creative Pokémon name, HP (e.g., "HP 90"), and a Pokémon type (e.g., Grass, Fighting).
+3.  **Invent Two Attacks**: Create two distinct attacks. For each, specify its name, a simple description of its effect, and a damage number (e.g., "Attack 1: 'Dual Slice', 30 damage, Flips two coins. Does 30 damage for each heads.").
+4.  **Write Pokédex Entry**: Write a short, creative Pokédex-style description based on the subject.
+5.  **Assemble the Final Prompt**: Combine everything into one single paragraph. Start with quality keywords. The prompt must explicitly state all the invented details (name, HP, attacks, Pokédex entry). The art style for the main subject should be identical to the user's uploaded image, placed within a classic Pokémon TCG card frame.
 
-Your output must ONLY be the final prompt for Imagen. Do not add any other text, explanations, or markdown formatting.
+**FINAL PROMPT STRUCTURE EXAMPLE:**
+"Masterpiece, ultra-detailed, sharp focus, professional trading card game art. A complete Pokémon TCG card in the classic 1999 base set style. The main artwork features [Description from Step 1]. The Pokémon's name is '[Name]'. It is a [Type]-type Pokémon with [HP] HP. It has two attacks. The first is '[Attack 1 Name]', which does [Damage] damage and has the effect: '[Effect]'. The second is '[Attack 2 Name]', which does [Damage] damage and has the effect: '[Effect]'. The Pokédex entry at the bottom reads: '[Pokédex Entry]'. **MANDATORY:** All text elements (name, HP, attacks, descriptions, card numbers) must be rendered in perfect, clear, razor-sharp, correctly-spelled English. NO GIBBERISH. NO BLURRY TEXT."
 
-Example of a final prompt structure: "Masterpiece, photorealistic, high detail. A complete Pokémon TCG card in the classic style. The Pokémon in the main art is [description of subject from user's image]. The card's name is '[Name]'. It is a [Type] type with [HP] HP. The first attack is '[Attack 1 Name]', deals [Damage] damage, and its effect is '[Effect]'. The second attack is '[Attack 2 Name]', deals [Damage] damage, and its effect is '[Effect]'. The Pokédex entry reads: '[Pokedex text]'. **Crucially, all text on the card must be perfectly legible, razor-sharp, and in clear, correctly-spelled English.**"`;
+Your output MUST be ONLY the final, single-paragraph prompt. Do not include explanations, titles, or markdown formatting.`;
     
     const visionResponse = await ai.models.generateContent({
         model: visionModel,
         contents: { parts: [imagePart, { text: promptForVisionModel }] },
         config: {
-            temperature: 0.2,
+            temperature: 0.4,
         }
     });
 
     let detailedPrompt = visionResponse.text?.trim() ?? "";
 
-    // The model can sometimes wrap the response in markdown fences.
-    // This removes them to ensure a clean prompt for the image model.
     const fenceRegex = /^```(\w*)?\s*\n?(.*?)\n?\s*```$/s;
     const match = detailedPrompt.match(fenceRegex);
     if (match && match[2]) {
@@ -94,16 +93,13 @@ Example of a final prompt structure: "Masterpiece, photorealistic, high detail. 
 
     if (imageResponse.generatedImages && imageResponse.generatedImages.length > 0) {
         const imageUrls = imageResponse.generatedImages.reduce<string[]>((acc, img) => {
-            // Safely access imageBytes using optional chaining.
             const base64ImageBytes = img.image?.imageBytes;
-            // Only create a URL if the image data exists.
             if (base64ImageBytes) {
                 acc.push(`data:image/jpeg;base64,${base64ImageBytes}`);
             }
             return acc;
         }, []);
 
-        // Handle the case where the API returned image objects but they were empty.
         if (imageUrls.length === 0) {
             throw new Error("The API returned image objects but they contained no data.");
         }
