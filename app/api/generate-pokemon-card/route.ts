@@ -91,10 +91,21 @@ Example of a final prompt for Imagen: "A complete Pokémon TCG card, photorealis
     });
 
     if (imageResponse.generatedImages && imageResponse.generatedImages.length > 0) {
-        const imageUrls = imageResponse.generatedImages.map(img => {
-            const base64ImageBytes: string = img.image.imageBytes;
-            return `data:image/jpeg;base64,${base64ImageBytes}`;
-        });
+        const imageUrls = imageResponse.generatedImages.reduce<string[]>((acc, img) => {
+            // Safely access imageBytes using optional chaining.
+            const base64ImageBytes = img.image?.imageBytes;
+            // Only create a URL if the image data exists.
+            if (base64ImageBytes) {
+                acc.push(`data:image/jpeg;base64,${base64ImageBytes}`);
+            }
+            return acc;
+        }, []);
+
+        // Handle the case where the API returned image objects but they were empty.
+        if (imageUrls.length === 0) {
+            throw new Error("The API returned image objects but they contained no data.");
+        }
+        
         return new Response(JSON.stringify({ imageUrls }), {
             status: 200,
             headers: { 'Content-Type': 'application/json' }
