@@ -66,7 +66,7 @@ Example of a final prompt for Imagen: "A complete Pokémon TCG card, photorealis
         }
     });
 
-    let detailedPrompt = visionResponse.text.trim();
+    let detailedPrompt = visionResponse.text?.trim() ?? "";
 
     // The model can sometimes wrap the response in markdown fences.
     // This removes them to ensure a clean prompt for the image model.
