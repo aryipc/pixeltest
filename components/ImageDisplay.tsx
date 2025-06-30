@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState } from 'react';
@@ -13,7 +14,7 @@ const Placeholder = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1">
       <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
     </svg>
-    <p className="text-sm">Your generated Pokémon cards will appear here.</p>
+    <p className="text-sm">Your generated Pokémon card will appear here.</p>
   </div>
 );
 
@@ -36,22 +37,18 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ imageUrls, isLoading }) => 
       <div className="w-full aspect-[3/4] bg-[#131325] border-2 border-cyan-400 rounded-lg flex items-center justify-center overflow-hidden">
         {isLoading && <Loader />}
         {!isLoading && imageUrls && imageUrls.length > 0 && (
-          <div className="grid grid-cols-2 gap-2 p-2 w-full h-full">
-            {imageUrls.map((url, index) => (
-              <div key={index} className="w-full h-full cursor-pointer group" onClick={() => setSelectedImage(url)}>
-                <img
-                  src={url}
-                  alt={`Generated card variation ${index + 1}`}
-                  className="w-full h-full object-cover rounded-md transition-transform duration-200 group-hover:scale-105"
-                />
-              </div>
-            ))}
+          <div className="w-full h-full p-2 cursor-pointer" onClick={() => setSelectedImage(imageUrls[0])}>
+            <img
+              src={imageUrls[0]}
+              alt="Generated Pokémon card"
+              className="w-full h-full object-contain rounded-md transition-transform duration-200 hover:scale-105"
+            />
           </div>
         )}
         {!isLoading && (!imageUrls || imageUrls.length === 0) && <Placeholder />}
       </div>
        <div className="text-center text-xs text-gray-400 h-8 flex items-center justify-center">
-        {imageUrls && !isLoading && <p>Click on a card to enlarge and download.</p>}
+        {imageUrls && !isLoading && <p>Click on the card to enlarge and download.</p>}
       </div>
 
       {selectedImage && (
