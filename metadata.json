@@ -1,6 +1,0 @@
-{
-  "name": "Pixel Art AI Generator",
-  "description": "An application that uses Google's Gemini and Imagen models to transform your images into unique 16-bit pixel art. Upload an image, see it reimagined in a classic retro game style, and download the result.",
-  "requestFramePermissions": [],
-  "prompt": ""
-}
