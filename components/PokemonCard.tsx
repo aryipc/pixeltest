@@ -19,11 +19,12 @@ const typeStyles: { [key: string]: { bg: string; symbol: string; text: string; }
   default: { bg: 'bg-gray-400', symbol: '❓', text: 'text-black' },
 };
 
-interface PokemonCardProps extends Omit<GenerationResult, 'onArtworkLoad'> {
+interface PokemonCardProps extends GenerationResult {
     isCapturing?: boolean;
+    onArtworkLoad: () => void;
 }
 
-const PokemonCard = forwardRef<HTMLDivElement, PokemonCardProps>(({ cardData, artworkUrl, isCapturing }, ref) => {
+const PokemonCard = forwardRef<HTMLDivElement, PokemonCardProps>(({ cardData, artworkUrl, isCapturing, onArtworkLoad }, ref) => {
     const {
         pokemon_name,
         hp,
@@ -57,14 +58,13 @@ const PokemonCard = forwardRef<HTMLDivElement, PokemonCardProps>(({ cardData, ar
                 {/* Artwork */}
                 <div className={artworkContainerClass}>
                     {artworkUrl && (
-                        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" aria-label={`Artwork for ${pokemon_name}`}>
-                            <image 
-                                href={artworkUrl} 
-                                width="100%" 
-                                height="100%" 
-                                preserveAspectRatio="xMidYMid slice"
-                            />
-                        </svg>
+                        <img
+                            src={artworkUrl}
+                            alt={`Artwork for ${pokemon_name}`}
+                            onLoad={onArtworkLoad}
+                            crossOrigin="anonymous"
+                            className="w-full h-full object-cover"
+                        />
                     )}
                 </div>
 

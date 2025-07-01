@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useRef, useCallback, useState, useEffect } from 'react';
@@ -26,17 +25,8 @@ const IosSaveModal = ({ dataUrl, onClose }: { dataUrl: string; onClose: () => vo
         <div className="bg-[#2c2c54] border-2 border-purple-500 rounded-lg shadow-xl p-6 text-center text-white w-full max-w-md">
             <h3 className="text-2xl font-bold text-yellow-300 mb-4">Save Your Card</h3>
             <p className="mb-4 text-gray-300">
-                Tap the button below to open your card in a new tab. Then, tap and hold the image to save it to your Photos.
+                Tap and hold the image below and select "Save Image" or "Add to Photos".
             </p>
-            <a
-                href={dataUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block w-full mb-6 px-4 py-3 bg-cyan-500 text-white font-bold rounded-md transition-all duration-200 ease-in-out hover:bg-cyan-600 active:scale-95 text-lg"
-            >
-                Open Image in New Tab
-            </a>
-            <p className="text-xs text-gray-400 mb-6">Alternatively, try tapping and holding the preview below to save.</p>
             <div className="mb-6">
                 <img 
                     src={dataUrl} 
@@ -44,6 +34,14 @@ const IosSaveModal = ({ dataUrl, onClose }: { dataUrl: string; onClose: () => vo
                     className="max-w-full h-auto rounded-lg shadow-lg border-2 border-cyan-400" 
                 />
             </div>
+             <a
+                href={dataUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full mb-6 px-4 py-3 bg-cyan-500 text-white font-bold rounded-md transition-all duration-200 ease-in-out hover:bg-cyan-600 active:scale-95 text-lg"
+            >
+                Open Image in New Tab
+            </a>
             <button
                 onClick={onClose}
                 className="w-full px-4 py-3 bg-pink-600 text-white font-bold rounded-md transition-all duration-200 ease-in-out hover:bg-pink-700 active:scale-95 text-lg"
@@ -61,50 +59,15 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
   const [isCapturing, setIsCapturing] = useState(false);
   const [saveModalUrl, setSaveModalUrl] = useState<string | null>(null);
 
-  // This effect implements a robust preloading strategy for the generated artwork.
-  // It ensures the download button is enabled only after the image is fully decoded
-  // and ready to be painted, preventing race conditions on all devices.
+  // When a new card is generated, reset the artwork loaded state.
   useEffect(() => {
-    // 1. Reset the loaded state whenever a new card is generated or cleared.
     setIsArtworkLoaded(false);
+  }, [generationResult]);
 
-    // 2. If there's no artwork URL, there's nothing to load.
-    if (!generationResult?.artworkUrl) {
-      return;
-    }
-
-    // 3. Preload the image in memory.
-    const img = new Image();
-    img.src = generationResult.artworkUrl;
-
-    const handleLoad = () => {
-      // 4. Once the image is decoded by the browser (`onload` fires),
-      //    we wait for the next available browser paint cycle.
-      requestAnimationFrame(() => {
-        // 5. Finally, we set the state, which enables the "Download" button.
-        //    This guarantees the button is only active after the image is visually ready.
-        setIsArtworkLoaded(true);
-      });
-    };
-
-    img.onload = handleLoad;
-    img.onerror = () => {
-      console.error("Artwork preload failed.");
-      // Unblock the UI even on error so the user can download the card frame.
-      handleLoad();
-    };
-
-  }, [generationResult]); // This effect re-runs whenever the generation result changes.
-
-  // Effect to clean up blob URLs when they are no longer needed.
-  useEffect(() => {
-    const urlToRevoke = saveModalUrl;
-    return () => {
-      if (urlToRevoke && urlToRevoke.startsWith('blob:')) {
-        URL.revokeObjectURL(urlToRevoke);
-      }
-    };
-  }, [saveModalUrl]);
+  // This callback is passed to PokemonCard and triggered by the artwork's `onLoad` event.
+  const handleArtworkLoad = useCallback(() => {
+    setIsArtworkLoaded(true);
+  }, []);
 
   const handleDownload = useCallback(async () => {
     const node = cardRef.current;
@@ -116,7 +79,8 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
     setIsCapturing(true);
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 250));
+      // Small delay to ensure styles are applied, especially the static background for capture
+      await new Promise(resolve => setTimeout(resolve, 50));
       await document.fonts.ready;
 
       const dataUrl = await toPng(node, { 
@@ -126,49 +90,37 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
       
       const name = generationResult.cardData.pokemon_name || 'pokemon-card';
       const fileName = `${name.toLowerCase().replace(/\s/g, '-')}.png`;
-      const blob = await (await fetch(dataUrl)).blob();
       
-      // Separate download logic for Desktop, iOS, and other Mobile devices.
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-      const isDesktop = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+      // We use the file for sharing, and the dataUrl for download/modal.
+      const blob = await (await fetch(dataUrl)).blob();
+      const file = new File([blob], fileName, { type: "image/png" });
 
-      if (isDesktop) {
-        // DESKTOP: Direct, silent download. Best UX for mouse/keyboard users.
-        const blobUrl = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.download = fileName;
-        link.href = blobUrl;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(blobUrl);
-      } else if (isIOS) {
-        // IOS: Always show the modal with "tap and hold" instructions.
-        const blobUrl = URL.createObjectURL(blob);
-        setSaveModalUrl(blobUrl);
-      } else if (navigator.share) {
-        // ANDROID / OTHER MOBILE: Use the modern Web Share API.
-        const file = new File([blob], fileName, { type: blob.type });
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({
-                files: [file],
-                title: 'My Pokémon Card',
-                text: `Check out my custom Pokémon card: ${name}!`,
-            });
-        } else {
-           throw new Error("Cannot share this file type.");
-        }
+      // Prioritize Web Share API on all platforms that support it.
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+            files: [file],
+            title: "My Pokémon Card",
+            text: `Check out my custom Pokémon card: ${name}!`,
+        });
       } else {
-        // FALLBACK for older mobile devices: Direct download.
-        const blobUrl = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.download = fileName;
-        link.href = blobUrl;
-        link.click();
-        URL.revokeObjectURL(blobUrl);
+        // Fallback for browsers that don't support Web Share or can't share the file.
+        const isDesktop = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+        if (isDesktop) {
+            // DESKTOP FALLBACK: Direct download.
+            const link = document.createElement('a');
+            link.download = fileName;
+            link.href = dataUrl;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } else {
+            // MOBILE FALLBACK: Show a modal to save the image.
+            setSaveModalUrl(dataUrl);
+        }
       }
     } catch (err: any) {
-        if (err.name !== 'AbortError') { // User canceling share is not an error
+        // User canceling the share dialog is not an error, so we ignore AbortError.
+        if (err.name !== 'AbortError') { 
             console.error('Failed to capture or share card image:', err);
             alert('Sorry, failed to download image. Please try again.');
         }
@@ -193,6 +145,7 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
                   ref={cardRef} 
                   {...generationResult} 
                   isCapturing={isCapturing}
+                  onArtworkLoad={handleArtworkLoad}
                />
             </div>
           )}
