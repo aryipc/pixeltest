@@ -30,15 +30,11 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
       return;
     }
 
-    // Set a fixed width for rendering to ensure consistency and quality
-    const originalStyle = {
-        width: node.style.width,
-        margin: node.style.margin,
-    };
-    node.style.width = '480px';
-    node.style.margin = '0'; // Ensure no margins interfere with rendering
-
-    toPng(node, { cacheBust: true, pixelRatio: 2 })
+    toPng(node, { 
+        cacheBust: true,
+        width: 750,
+        height: 1050,
+    })
       .then((dataUrl) => {
         const link = document.createElement('a');
         const name = generationResult?.cardData?.pokemon_name || 'pokemon-card';
@@ -48,13 +44,6 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
       })
       .catch((err) => {
         console.error('Failed to download card image', err);
-      })
-      .finally(() => {
-        // Restore original style
-        if(node) {
-            node.style.width = originalStyle.width;
-            node.style.margin = originalStyle.margin;
-        }
       });
   }, [generationResult]);
 
@@ -64,7 +53,7 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
       <div className="w-full min-h-[60vh] md:min-h-0 bg-[#131325] border-2 border-cyan-400 rounded-lg flex items-center justify-center overflow-auto p-2">
         {isLoading && <Loader />}
         {!isLoading && generationResult && (
-          <div className="w-full max-w-sm mx-auto">
+          <div className="w-full max-w-sm mx-auto flex justify-center">
              <PokemonCard ref={cardRef} {...generationResult} />
           </div>
         )}
