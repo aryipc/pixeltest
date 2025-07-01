@@ -1,4 +1,3 @@
-
 "use client";
 
 import React from 'react';
@@ -25,11 +24,30 @@ const DownloadWarningModal: React.FC<DownloadWarningModalProps> = ({ isOpen, onC
         <h3 className="text-xl sm:text-2xl font-bold text-yellow-300" style={{ textShadow: '2px 2px 0px #e040fb' }}>
           Mobile Download Notice
         </h3>
-        <div className="text-sm sm:text-base space-y-3 text-gray-200 leading-relaxed">
-           <p>Please check the downloaded image size. The full, high-quality card should be over <strong className="text-cyan-300">400KB</strong>.</p>
-           <p>If it's smaller, it's a preview. Please tap 'DOWNLOAD CARD' again for the full image.</p>
-           <p className="text-xs text-gray-400 mt-2">This is due to a mobile system limitation. Thanks for your understanding!</p>
+        
+        <div className="text-sm sm:text-base space-y-4 text-gray-200 leading-relaxed">
+           <p>On mobile, your first download might be a low-quality preview.</p>
+           <p>Please <strong className="text-cyan-300">check the file size</strong> after saving.</p>
+        
+            <div className="flex justify-around items-start gap-4 my-4">
+                {/* Correct Example */}
+                <div className="flex flex-col items-center text-center gap-2">
+                    <span className="text-3xl" role="img" aria-label="Checkmark">✅</span>
+                    <img src="/hylian-salah.png" alt="Example of a correct, high-quality download (over 400KB)" className="rounded-md border-2 border-green-400 w-32 h-auto object-contain"/>
+                    <p className="text-xs font-bold text-green-300">CORRECT<br/>(&gt; 400KB)</p>
+                </div>
+
+                {/* Incorrect Example */}
+                <div className="flex flex-col items-center text-center gap-2">
+                    <span className="text-3xl" role="img" aria-label="Cross mark">❌</span>
+                    <img src="/hylian-guard.png" alt="Example of an incorrect, low-quality preview (under 100KB)" className="rounded-md border-2 border-red-400 w-32 h-auto object-contain"/>
+                    <p className="text-xs font-bold text-red-400">PREVIEW<br/>(&lt; 100KB)</p>
+                </div>
+            </div>
+
+            <p>If you get the small preview, please tap <strong className="text-pink-500">'DOWNLOAD CARD'</strong> again for the full, high-quality image.</p>
         </div>
+        
         <button
           onClick={onClose}
           className="w-full mt-2 px-4 py-3 bg-pink-600 text-white font-bold rounded-md transition-all duration-200 ease-in-out hover:bg-pink-700 active:scale-95 text-sm sm:text-base"

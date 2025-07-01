@@ -1,4 +1,3 @@
-
 import { GoogleGenAI } from "@google/genai";
 
 // This function will be triggered by POST requests to /api/generate-pokemon-card
@@ -29,8 +28,16 @@ export async function POST(request: Request) {
 
   // Helper function to convert File to a GoogleGenAI.Part object.
   const fileToGenerativePart = async (file: File) => {
-    const buffer = await file.arrayBuffer();
-    const base64EncodedData = Buffer.from(buffer).toString('base64');
+    const arrayBuffer = await file.arrayBuffer();
+    // In some environments (like Edge Functions), the 'Buffer' object is not available.
+    // We can convert the ArrayBuffer to a Base64 string manually.
+    const uint8Array = new Uint8Array(arrayBuffer);
+    let binaryString = '';
+    for (let i = 0; i < uint8Array.length; i++) {
+        binaryString += String.fromCharCode(uint8Array[i]);
+    }
+    const base64EncodedData = btoa(binaryString);
+    
     return {
       inlineData: { data: base64EncodedData, mimeType: file.type },
     };
