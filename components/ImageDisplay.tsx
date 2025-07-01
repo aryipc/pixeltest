@@ -55,14 +55,14 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
                 transformOrigin: 'top left',
             }
         })
-        .then((dataUrl) => {
+        .then((dataUrl: string) => {
             const link = document.createElement('a');
             const name = generationResult?.cardData?.pokemon_name || 'pokemon-card';
             link.download = `${name.toLowerCase().replace(/\s/g, '-')}.png`;
             link.href = dataUrl;
             link.click();
         })
-        .catch((err) => {
+        .catch((err: any) => {
             console.error('Failed to download card image', err);
             alert('Sorry, failed to download image. Please try again.');
         })
