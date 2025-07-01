@@ -33,52 +33,58 @@ const PokemonCard = forwardRef<HTMLDivElement, GenerationResult>(({ cardData, ar
     const style = typeStyles[pokemon_type] || typeStyles.default;
 
     return (
-        <div ref={ref} className="w-[375px] h-[525px] p-[10px] bg-pokemon-yellow font-sans flex flex-col border-[6px] border-pokemon-blue rounded-[20px] text-black overflow-hidden">
-            {/* Header */}
-            <div className="flex justify-between items-baseline px-2 pt-1 flex-shrink-0">
-                <h2 className="font-extrabold" style={{fontFamily: "'Press Start 2P', cursive", fontSize: '26px'}}>{pokemon_name}</h2>
-                <div className="flex items-center">
-                    <span className="font-bold mr-1" style={{fontSize: '18px'}}>{hp} HP</span>
-                    <div className={`w-8 h-8 rounded-full ${style.bg} flex items-center justify-center text-lg`}>
-                        {style.symbol}
-                    </div>
-                </div>
-            </div>
-
-            {/* Artwork */}
-            <div className="mx-[10px] mt-1 border-[5px] border-card-b-gold holo-background rounded-lg flex-grow overflow-hidden">
-                <img src={artworkUrl} alt={`Artwork for ${pokemon_name}`} className="w-full h-full object-cover" />
-            </div>
-
-             {/* Illustrator credit */}
-            <p className="text-right mr-3 mt-1 flex-shrink-0 italic" style={{fontSize: '10px'}}>Illus. Google/Imagen 3</p>
-
-            {/* Attacks Section */}
-            <div className="mx-[10px] mt-1 p-3 border-[5px] border-card-b-gold rounded-lg bg-[#fdf2d4] flex flex-col gap-1 flex-shrink-0">
-                <div className="attack">
-                    <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-2">
-                            <div className={`w-6 h-6 rounded-full ${style.bg} flex items-center justify-center text-sm`}>{style.symbol}</div>
-                            <h3 className="font-bold" style={{fontSize: '20px'}}>{attack_1_name}</h3>
+        <div ref={ref} className="w-[375px] h-[525px] p-[10px] bg-pokemon-yellow font-sans flex flex-col justify-between border-[6px] border-pokemon-blue rounded-[20px] text-black overflow-hidden">
+            {/* Top Section Wrapper */}
+            <div>
+                {/* Header */}
+                <div className="flex justify-between items-baseline px-2 pt-1 flex-shrink-0">
+                    <h2 className="font-extrabold" style={{fontFamily: "'Press Start 2P', cursive", fontSize: '26px'}}>{pokemon_name}</h2>
+                    <div className="flex items-center">
+                        <span className="font-bold mr-1" style={{fontSize: '18px'}}>{hp} HP</span>
+                        <div className={`w-8 h-8 rounded-full ${style.bg} flex items-center justify-center text-lg`}>
+                            {style.symbol}
                         </div>
-                        <span className="font-bold" style={{fontSize: '24px'}}>{attack_1_damage}</span>
                     </div>
-                    <p className="leading-tight mt-1" style={{fontSize: '13px'}}>
-                        {attack_1_description}
-                    </p>
                 </div>
 
-                {/* Pokédex Entry */}
-                <div className="mt-2 pt-2 border-t-2 border-dotted border-card-b-gold">
-                    <p className="italic leading-tight" style={{fontSize: '12px'}}>
-                       {pokedex_entry}
-                    </p>
+                {/* Artwork */}
+                <div className="mx-[10px] mt-1 border-[5px] border-card-b-gold holo-background rounded-lg overflow-hidden h-[210px]">
+                    <img src={artworkUrl} alt={`Artwork for ${pokemon_name}`} className="w-full h-full object-cover" />
                 </div>
+
+                {/* Illustrator credit */}
+                <p className="text-right mr-3 mt-1 flex-shrink-0 italic" style={{fontSize: '10px'}}>Illus. Google/Imagen 3</p>
             </div>
-            
-             {/* Footer */}
-            <div className="text-center mt-auto pb-1 flex-shrink-0">
-                <p className="font-mono" style={{fontSize: '9px'}}>&copy;2024 Pokémon Card Generator</p>
+
+            {/* Bottom Section Wrapper */}
+            <div>
+                {/* Attacks Section */}
+                <div className="mx-[10px] mt-1 p-3 border-[5px] border-card-b-gold rounded-lg bg-[#fdf2d4] flex flex-col gap-1 flex-shrink-0">
+                    <div className="attack">
+                        <div className="flex justify-between items-center">
+                            <div className="flex items-center gap-2">
+                                <div className={`w-6 h-6 rounded-full ${style.bg} flex items-center justify-center text-sm`}>{style.symbol}</div>
+                                <h3 className="font-bold" style={{fontSize: '20px'}}>{attack_1_name}</h3>
+                            </div>
+                            <span className="font-bold" style={{fontSize: '24px'}}>{attack_1_damage}</span>
+                        </div>
+                        <p className="leading-tight mt-1" style={{fontSize: '13px'}}>
+                            {attack_1_description}
+                        </p>
+                    </div>
+
+                    {/* Pokédex Entry */}
+                    <div className="mt-2 pt-2 border-t-2 border-dotted border-card-b-gold">
+                        <p className="italic leading-tight" style={{fontSize: '12px'}}>
+                           {pokedex_entry}
+                        </p>
+                    </div>
+                </div>
+                
+                {/* Footer */}
+                <div className="text-center pb-1 flex-shrink-0">
+                    <p className="font-mono" style={{fontSize: '9px'}}>&copy;2024 Pokémon Card Generator</p>
+                </div>
             </div>
         </div>
     );
