@@ -21,9 +21,10 @@ const typeStyles: { [key: string]: { bg: string; symbol: string; text: string; }
 
 interface PokemonCardProps extends GenerationResult {
     onArtworkLoad?: () => void;
+    isCapturing?: boolean;
 }
 
-const PokemonCard = forwardRef<HTMLDivElement, PokemonCardProps>(({ cardData, artworkUrl, onArtworkLoad }, ref) => {
+const PokemonCard = forwardRef<HTMLDivElement, PokemonCardProps>(({ cardData, artworkUrl, onArtworkLoad, isCapturing }, ref) => {
     const {
         pokemon_name,
         hp,
@@ -35,23 +36,21 @@ const PokemonCard = forwardRef<HTMLDivElement, PokemonCardProps>(({ cardData, ar
     } = cardData;
 
     useEffect(() => {
-        // To ensure the download button is enabled only after the image is ready,
-        // we use a simple and reliable preloading mechanism. An in-memory Image 
-        // object is created to load the artwork data URL. Its `onload` event 
-        // safely triggers the callback, ensuring the artwork is decoded before download.
         if (artworkUrl && onArtworkLoad) {
             const img = new Image();
             img.src = artworkUrl;
             img.onload = onArtworkLoad;
             img.onerror = () => {
                 console.error("Artwork failed to load from data URL.");
-                // Still call it to unblock the button, even if it might fail.
                 onArtworkLoad();
             };
         }
     }, [artworkUrl, onArtworkLoad]);
 
     const style = typeStyles[pokemon_type] || typeStyles.default;
+    
+    // Conditionally apply a static background during capture to prevent animation bugs.
+    const artworkContainerClass = `mx-[10px] mt-1 border-[5px] border-card-b-gold rounded-lg overflow-hidden h-[210px] ${isCapturing ? 'bg-gray-200' : 'holo-background'}`;
 
     return (
         <div ref={ref} className="w-[375px] h-[525px] p-[10px] bg-pokemon-yellow font-sans flex flex-col justify-between border-[6px] border-pokemon-blue rounded-[20px] text-black overflow-hidden">
@@ -68,8 +67,8 @@ const PokemonCard = forwardRef<HTMLDivElement, PokemonCardProps>(({ cardData, ar
                     </div>
                 </div>
 
-                {/* Artwork - Using inline SVG for robust image capture on all browsers */}
-                <div className="mx-[10px] mt-1 border-[5px] border-card-b-gold holo-background rounded-lg overflow-hidden h-[210px]">
+                {/* Artwork */}
+                <div className={artworkContainerClass}>
                     {artworkUrl && (
                         <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" aria-label={`Artwork for ${pokemon_name}`}>
                             <image 

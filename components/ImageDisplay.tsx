@@ -24,6 +24,7 @@ const Placeholder = () => (
 const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isArtworkLoaded, setIsArtworkLoaded] = useState(false);
+  const [isCapturing, setIsCapturing] = useState(false);
 
   useEffect(() => {
     if (!generationResult) {
@@ -37,30 +38,34 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
       return;
     }
 
-    // Add a class to the body to disable animations during capture
-    document.body.classList.add('capturing');
+    // Set capturing mode to render a simplified card for stability
+    setIsCapturing(true);
 
-    toPng(node, {
-        cacheBust: true,
-        width: node.offsetWidth,
-        height: node.offsetHeight,
-        pixelRatio: 2,
-    })
-      .then((dataUrl) => {
-        const link = document.createElement('a');
-        const name = generationResult?.cardData?.pokemon_name || 'pokemon-card';
-        link.download = `${name.toLowerCase().replace(/\s/g, '-')}.png`;
-        link.href = dataUrl;
-        link.click();
-      })
-      .catch((err) => {
-        console.error('Failed to download card image', err);
-        alert('Sorry, failed to download image. Please try again.');
-      })
-      .finally(() => {
-        // Always remove the class after the operation is complete
-        document.body.classList.remove('capturing');
-      });
+    // Use a short timeout to allow React to re-render the component
+    // with the simplified styles before we attempt to capture it.
+    setTimeout(() => {
+        toPng(node, {
+            cacheBust: true,
+            width: node.offsetWidth,
+            height: node.offsetHeight,
+            pixelRatio: 2,
+        })
+        .then((dataUrl) => {
+            const link = document.createElement('a');
+            const name = generationResult?.cardData?.pokemon_name || 'pokemon-card';
+            link.download = `${name.toLowerCase().replace(/\s/g, '-')}.png`;
+            link.href = dataUrl;
+            link.click();
+        })
+        .catch((err) => {
+            console.error('Failed to download card image', err);
+            alert('Sorry, failed to download image. Please try again.');
+        })
+        .finally(() => {
+            // Always turn off capturing mode, even if an error occurs.
+            setIsCapturing(false);
+        });
+    }, 100); // 100ms delay for DOM update
   }, [generationResult]);
 
   return (
@@ -74,6 +79,7 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
                 ref={cardRef} 
                 {...generationResult} 
                 onArtworkLoad={() => setIsArtworkLoaded(true)}
+                isCapturing={isCapturing}
              />
           </div>
         )}
