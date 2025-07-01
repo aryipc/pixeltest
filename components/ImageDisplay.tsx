@@ -85,11 +85,17 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
               // If sharing is not supported, throw an error to trigger the catch block fallback.
               throw new Error('Web Share API not supported or cannot share these files.');
             }
-          } catch (err) {
-            console.warn('Web Share failed, falling back to opening in a new tab:', err);
-            const newTab = window.open(dataUrl, '_blank');
-            if (!newTab) {
-              alert("Your browser blocked the pop-up. Please enable pop-ups for this site to view and save your card.");
+          } catch (err: any) {
+            // If the user cancels the share sheet, the promise rejects with an "AbortError".
+            // We should not treat this as a failure that requires a fallback.
+            if (err?.name === 'AbortError') {
+              console.log('Share action was cancelled by the user.');
+            } else {
+              console.warn('Web Share failed, falling back to opening in a new tab:', err);
+              const newTab = window.open(dataUrl, '_blank');
+              if (!newTab) {
+                alert("Your browser blocked the pop-up. Please enable pop-ups for this site to view and save your card.");
+              }
             }
           }
       }

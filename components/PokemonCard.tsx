@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useRef, useEffect } from 'react';
 import type { GenerationResult } from '@/services/geminiService';
 
 const typeStyles: { [key: string]: { bg: string; symbol: string; text: string; } } = {
@@ -36,6 +36,17 @@ const PokemonCard = forwardRef<HTMLDivElement, PokemonCardProps>(({ cardData, ar
     } = cardData;
 
     const style = typeStyles[pokemon_type] || typeStyles.default;
+    const imageRef = useRef<HTMLImageElement>(null);
+
+    // This effect handles cases where the image loads from cache before the onLoad event listener is attached.
+    useEffect(() => {
+        const imgElement = imageRef.current;
+        // Check if the image element exists, has a src, and is already 'complete'.
+        // The 'complete' property is true if the browser has finished fetching the image.
+        if (imgElement?.complete && artworkUrl) {
+            onArtworkLoad();
+        }
+    }, [artworkUrl, onArtworkLoad]);
     
     // Conditionally apply a static background during capture to prevent animation bugs.
     const artworkContainerClass = `mx-[10px] mt-1 border-[5px] border-card-b-gold rounded-lg overflow-hidden h-[210px] ${isCapturing ? 'bg-gray-200' : 'holo-background'}`;
@@ -59,6 +70,7 @@ const PokemonCard = forwardRef<HTMLDivElement, PokemonCardProps>(({ cardData, ar
                 <div className={artworkContainerClass}>
                     {artworkUrl && (
                         <img
+                            ref={imageRef}
                             src={artworkUrl}
                             alt={`Artwork for ${pokemon_name}`}
                             onLoad={onArtworkLoad}
