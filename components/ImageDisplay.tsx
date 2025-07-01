@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useRef, useCallback, useState, useEffect } from 'react';
-import { toPng } from 'html-to-image';
+import domtoimage from 'dom-to-image-more';
 import Loader from './Loader';
 import PokemonCard from './PokemonCard';
 import type { GenerationResult } from '../services/geminiService';
@@ -44,11 +44,16 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
     // Use a short timeout to allow React to re-render the component
     // with the simplified styles before we attempt to capture it.
     setTimeout(() => {
-        toPng(node, {
-            cacheBust: true,
-            width: node.offsetWidth,
-            height: node.offsetHeight,
-            pixelRatio: 2,
+        // Using dom-to-image-more as it's more robust on iOS/Safari.
+        // The scaling method is recommended for high-resolution captures.
+        const scale = 2;
+        domtoimage.toPng(node, {
+            width: node.offsetWidth * scale,
+            height: node.offsetHeight * scale,
+            style: {
+                transform: `scale(${scale})`,
+                transformOrigin: 'top left',
+            }
         })
         .then((dataUrl) => {
             const link = document.createElement('a');
