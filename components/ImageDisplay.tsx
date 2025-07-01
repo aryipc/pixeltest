@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, useState, useEffect } from 'react';
 import { toPng } from 'html-to-image';
 import Loader from './Loader';
 import PokemonCard from './PokemonCard';
@@ -23,6 +23,13 @@ const Placeholder = () => (
 
 const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading }) => {
   const cardRef = useRef<HTMLDivElement>(null);
+  const [isArtworkLoaded, setIsArtworkLoaded] = useState(false);
+
+  useEffect(() => {
+    if (!generationResult) {
+      setIsArtworkLoaded(false);
+    }
+  }, [generationResult]);
 
   const handleDownload = useCallback(() => {
     const node = cardRef.current;
@@ -32,8 +39,6 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
 
     toPng(node, {
         cacheBust: true,
-        // Set width, height, and pixelRatio for better rendering quality,
-        // especially with custom fonts.
         width: node.offsetWidth,
         height: node.offsetHeight,
         pixelRatio: 2,
@@ -47,6 +52,7 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
       })
       .catch((err) => {
         console.error('Failed to download card image', err);
+        alert('Sorry, failed to download image. Please try again.');
       });
   }, [generationResult]);
 
@@ -57,7 +63,11 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
         {isLoading && <Loader />}
         {!isLoading && generationResult && (
           <div className="w-full max-w-sm mx-auto flex justify-center">
-             <PokemonCard ref={cardRef} {...generationResult} />
+             <PokemonCard 
+                ref={cardRef} 
+                {...generationResult} 
+                onArtworkLoad={() => setIsArtworkLoaded(true)}
+             />
           </div>
         )}
         {!isLoading && !generationResult && <Placeholder />}
@@ -66,9 +76,10 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
         {generationResult && !isLoading && (
             <button
                 onClick={handleDownload}
-                className="w-full px-4 py-3 bg-green-600 text-white font-bold rounded-md transition-all duration-200 ease-in-out enabled:hover:bg-green-700 enabled:active:scale-95 disabled:bg-gray-600 disabled:cursor-not-allowed flex items-center justify-center text-sm sm:text-base"
+                disabled={!isArtworkLoaded}
+                className="w-full px-4 py-3 bg-green-600 text-white font-bold rounded-md transition-all duration-200 ease-in-out enabled:hover:bg-green-700 enabled:active:scale-95 disabled:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-sm sm:text-base"
             >
-                DOWNLOAD CARD
+                {isArtworkLoaded ? 'DOWNLOAD CARD' : 'LOADING ARTWORK...'}
             </button>
         )}
       </div>

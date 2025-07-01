@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { forwardRef } from 'react';
@@ -18,7 +19,11 @@ const typeStyles: { [key: string]: { bg: string; symbol: string; text: string; }
   default: { bg: 'bg-gray-400', symbol: '❓', text: 'text-black' },
 };
 
-const PokemonCard = forwardRef<HTMLDivElement, GenerationResult>(({ cardData, artworkUrl }, ref) => {
+interface PokemonCardProps extends GenerationResult {
+    onArtworkLoad?: () => void;
+}
+
+const PokemonCard = forwardRef<HTMLDivElement, PokemonCardProps>(({ cardData, artworkUrl, onArtworkLoad }, ref) => {
     const {
         pokemon_name,
         hp,
@@ -48,7 +53,13 @@ const PokemonCard = forwardRef<HTMLDivElement, GenerationResult>(({ cardData, ar
 
                 {/* Artwork */}
                 <div className="mx-[10px] mt-1 border-[5px] border-card-b-gold holo-background rounded-lg overflow-hidden h-[210px]">
-                    <img src={artworkUrl} alt={`Artwork for ${pokemon_name}`} className="w-full h-full object-cover" crossOrigin="anonymous" />
+                    <img 
+                        src={artworkUrl} 
+                        alt={`Artwork for ${pokemon_name}`} 
+                        className="w-full h-full object-cover" 
+                        crossOrigin="anonymous"
+                        onLoad={onArtworkLoad}
+                    />
                 </div>
 
                 {/* Illustrator credit */}
