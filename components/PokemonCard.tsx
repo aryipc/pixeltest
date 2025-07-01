@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useEffect } from 'react';
 import type { GenerationResult } from '../services/geminiService';
 
 const typeStyles: { [key: string]: { bg: string; symbol: string; text: string; } } = {
@@ -34,6 +34,14 @@ const PokemonCard = forwardRef<HTMLDivElement, PokemonCardProps>(({ cardData, ar
         pokedex_entry
     } = cardData;
 
+    useEffect(() => {
+        if (artworkUrl && onArtworkLoad) {
+            const img = new Image();
+            img.src = artworkUrl;
+            img.onload = onArtworkLoad;
+        }
+    }, [artworkUrl, onArtworkLoad]);
+
     const style = typeStyles[pokemon_type] || typeStyles.default;
 
     return (
@@ -53,12 +61,16 @@ const PokemonCard = forwardRef<HTMLDivElement, PokemonCardProps>(({ cardData, ar
 
                 {/* Artwork */}
                 <div className="mx-[10px] mt-1 border-[5px] border-card-b-gold holo-background rounded-lg overflow-hidden h-[210px]">
-                    <img 
-                        src={artworkUrl} 
-                        alt={`Artwork for ${pokemon_name}`} 
-                        className="w-full h-full object-cover" 
-                        crossOrigin="anonymous"
-                        onLoad={onArtworkLoad}
+                    <div
+                        className="w-full h-full"
+                        style={{
+                            backgroundImage: `url(${artworkUrl})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                            backgroundRepeat: 'no-repeat',
+                        }}
+                        role="img"
+                        aria-label={`Artwork for ${pokemon_name}`}
                     />
                 </div>
 
