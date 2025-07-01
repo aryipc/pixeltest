@@ -21,10 +21,34 @@ const Placeholder = () => (
   </div>
 );
 
+const IosSaveModal = ({ dataUrl, onClose }: { dataUrl: string; onClose: () => void }) => (
+    <div className="fixed inset-0 bg-black bg-opacity-80 flex flex-col items-center justify-center z-50 p-4" role="dialog" aria-modal="true">
+        <div className="bg-[#2c2c54] border-2 border-purple-500 rounded-lg shadow-xl p-6 text-center text-white w-full max-w-md">
+            <h3 className="text-2xl font-bold text-yellow-300 mb-4">Save Your Card</h3>
+            <p className="mb-6 text-gray-300">On iOS, tap and hold the image below, then choose "Save to Photos" or "Add to Photos".</p>
+            <div className="mb-6">
+                <img 
+                    src={dataUrl} 
+                    alt="Generated Pokémon Card" 
+                    className="max-w-full h-auto rounded-lg shadow-lg border-2 border-cyan-400" 
+                />
+            </div>
+            <button
+                onClick={onClose}
+                className="w-full px-4 py-3 bg-pink-600 text-white font-bold rounded-md transition-all duration-200 ease-in-out hover:bg-pink-700 active:scale-95 text-lg"
+            >
+                Close
+            </button>
+        </div>
+    </div>
+);
+
+
 const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isArtworkLoaded, setIsArtworkLoaded] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
+  const [iosSaveDataUrl, setIosSaveDataUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (!generationResult) {
@@ -53,24 +77,10 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
         cacheBust: true, // Helps with fresh rendering of content
       });
 
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
       if (isIOS) {
-        const newWindow = window.open();
-        if (newWindow) {
-          newWindow.document.write(`
-            <body style="margin: 0; background: #1a1a2e; color: white; font-family: sans-serif; text-align: center; display: flex; align-items: center; justify-content: center; min-height: 100vh;">
-              <div style="padding: 1rem;">
-                <h1 style="font-size: 1.5rem; margin-bottom: 1rem;">Save Your Card</h1>
-                <p style="margin-bottom: 2rem;">Tap and hold the image, then select "Save to Photos" or "Add to Photos".</p>
-                <img src="${dataUrl}" alt="Generated Pokémon Card" style="max-width: 90vw; max-height: 70vh; border-radius: 10px; box-shadow: 0 0 20px rgba(255,255,255,0.3);" />
-              </div>
-            </body>
-          `);
-          newWindow.document.title = "Save Pokémon Card";
-        } else {
-          alert("Your browser blocked the new window. Please allow pop-ups for this site to save your card.");
-        }
+        setIosSaveDataUrl(dataUrl);
       } else {
         const link = document.createElement('a');
         const name = generationResult?.cardData?.pokemon_name || 'pokemon-card';
@@ -87,34 +97,42 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
   }, [generationResult, isArtworkLoaded]);
 
   return (
-    <div className="w-full p-4 bg-[#2c2c54] border-2 border-purple-500 rounded-lg shadow-lg flex flex-col gap-4 h-full">
-      <h2 className="text-xl text-center text-yellow-300">Output</h2>
-      <div className="w-full min-h-[60vh] md:min-h-0 bg-[#131325] border-2 border-cyan-400 rounded-lg flex items-center justify-center overflow-auto p-2">
-        {isLoading && <Loader />}
-        {!isLoading && generationResult && (
-          <div className="w-full max-w-sm mx-auto flex justify-center">
-             <PokemonCard 
-                ref={cardRef} 
-                {...generationResult} 
-                onArtworkLoad={() => setIsArtworkLoaded(true)}
-                isCapturing={isCapturing}
-             />
-          </div>
-        )}
-        {!isLoading && !generationResult && <Placeholder />}
+    <>
+      <div className="w-full p-4 bg-[#2c2c54] border-2 border-purple-500 rounded-lg shadow-lg flex flex-col gap-4 h-full">
+        <h2 className="text-xl text-center text-yellow-300">Output</h2>
+        <div className="w-full min-h-[60vh] md:min-h-0 bg-[#131325] border-2 border-cyan-400 rounded-lg flex items-center justify-center overflow-auto p-2">
+          {isLoading && <Loader />}
+          {!isLoading && generationResult && (
+            <div className="w-full max-w-sm mx-auto flex justify-center">
+               <PokemonCard 
+                  ref={cardRef} 
+                  {...generationResult} 
+                  onArtworkLoad={() => setIsArtworkLoaded(true)}
+                  isCapturing={isCapturing}
+               />
+            </div>
+          )}
+          {!isLoading && !generationResult && <Placeholder />}
+        </div>
+         <div className="text-center h-10 flex items-center justify-center mt-auto pt-4">
+          {generationResult && !isLoading && (
+              <button
+                  onClick={handleDownload}
+                  disabled={!isArtworkLoaded || isCapturing}
+                  className="w-full px-4 py-3 bg-green-600 text-white font-bold rounded-md transition-all duration-200 ease-in-out enabled:hover:bg-green-700 enabled:active:scale-95 disabled:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-sm sm:text-base"
+              >
+                  {isCapturing ? 'PREPARING IMAGE...' : (isArtworkLoaded ? 'DOWNLOAD CARD' : 'LOADING ARTWORK...')}
+              </button>
+          )}
+        </div>
       </div>
-       <div className="text-center h-10 flex items-center justify-center mt-auto pt-4">
-        {generationResult && !isLoading && (
-            <button
-                onClick={handleDownload}
-                disabled={!isArtworkLoaded || isCapturing}
-                className="w-full px-4 py-3 bg-green-600 text-white font-bold rounded-md transition-all duration-200 ease-in-out enabled:hover:bg-green-700 enabled:active:scale-95 disabled:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-sm sm:text-base"
-            >
-                {isCapturing ? 'PREPARING IMAGE...' : (isArtworkLoaded ? 'DOWNLOAD CARD' : 'LOADING ARTWORK...')}
-            </button>
-        )}
-      </div>
-    </div>
+      {iosSaveDataUrl && (
+        <IosSaveModal
+            dataUrl={iosSaveDataUrl}
+            onClose={() => setIosSaveDataUrl(null)}
+        />
+      )}
+    </>
   );
 };
 
