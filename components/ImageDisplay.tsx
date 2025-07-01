@@ -77,6 +77,17 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
     };
   }, [saveModalUrl]);
 
+  const onArtworkLoad = useCallback(() => {
+    // The image data is loaded, but to prevent a race condition, we need to
+    // wait for the browser to actually paint it. requestAnimationFrame is the
+    // perfect tool for this, as it executes a callback right before the next repaint.
+    requestAnimationFrame(() => {
+      // By setting state inside this callback, we ensure the "Download" button is
+      // enabled only after the artwork is visually present on the card.
+      setIsArtworkLoaded(true);
+    });
+  }, []); // This callback has no dependencies.
+
   const handleDownload = useCallback(async () => {
     const node = cardRef.current;
     if (node === null || !isArtworkLoaded || !generationResult) {
@@ -157,7 +168,7 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
                <PokemonCard 
                   ref={cardRef} 
                   {...generationResult} 
-                  onArtworkLoad={() => setIsArtworkLoaded(true)}
+                  onArtworkLoad={onArtworkLoad}
                   isCapturing={isCapturing}
                />
             </div>
