@@ -25,10 +25,12 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
   const cardRef = useRef<HTMLDivElement>(null);
   const [isArtworkLoaded, setIsArtworkLoaded] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
+  const [hasShownIosWarning, setHasShownIosWarning] = useState(false);
 
-  // When a new card is generated, reset the artwork loaded state.
+  // When a new card is generated, reset the artwork loaded and warning states.
   useEffect(() => {
     setIsArtworkLoaded(false);
+    setHasShownIosWarning(false);
   }, [generationResult]);
 
   // This callback is passed to PokemonCard and triggered by the artwork's `onLoad` event.
@@ -41,6 +43,17 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
     if (node === null || !isArtworkLoaded || !generationResult) {
       console.warn("Download cancelled: Card element not ready or data missing.");
       return;
+    }
+
+    // Check for iOS and show a one-time warning.
+    const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    if (isIos && !hasShownIosWarning) {
+        alert(
+            "Mobile Download Tip:\n\n" +
+            "If the downloaded image is small (under 100KB), it's likely a preview. Please cancel and tap 'DOWNLOAD CARD' again for the full, high-quality image (over 300KB).\n\n" +
+            "This is due to a limitation in how mobile systems handle image sharing. We appreciate your understanding!"
+        );
+        setHasShownIosWarning(true);
     }
 
     setIsCapturing(true);
@@ -105,7 +118,7 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
     } finally {
       setIsCapturing(false);
     }
-  }, [generationResult, isArtworkLoaded]);
+  }, [generationResult, isArtworkLoaded, hasShownIosWarning]);
 
   return (
     <div className="w-full p-4 bg-[#2c2c54] border-2 border-purple-500 rounded-lg shadow-lg flex flex-col gap-4 h-full">
