@@ -33,9 +33,9 @@ const PokemonCard = forwardRef<HTMLDivElement, GenerationResult>(({ cardData, ar
     const style = typeStyles[pokemon_type] || typeStyles.default;
 
     return (
-        <div ref={ref} className="w-full h-full p-2.5 bg-pokemon-yellow font-sans flex flex-col border-8 border-pokemon-blue rounded-2xl text-black">
+        <div ref={ref} className="w-full p-2.5 bg-pokemon-yellow font-sans flex flex-col border-8 border-pokemon-blue rounded-2xl text-black">
             {/* Header */}
-            <div className="flex justify-between items-center px-2 pt-1">
+            <div className="flex justify-between items-center px-2 pt-1 flex-shrink-0">
                 <h2 className="text-xl font-extrabold" style={{fontFamily: "'Press Start 2P', cursive"}}>{pokemon_name}</h2>
                 <div className="flex items-center">
                     <span className="text-lg font-bold mr-1">{hp} HP</span>
@@ -46,30 +46,30 @@ const PokemonCard = forwardRef<HTMLDivElement, GenerationResult>(({ cardData, ar
             </div>
 
             {/* Artwork */}
-            <div className="mx-2 mt-2 border-4 border-card-b-gold flex-grow holo-background rounded-md">
+            <div className="mx-2 mt-2 border-4 border-card-b-gold holo-background rounded-md aspect-[3/4]">
                 <img src={artworkUrl} alt={`Artwork for ${pokemon_name}`} className="w-full h-full object-cover" />
             </div>
 
              {/* Type Banner */}
-            <p className="text-xs italic text-right mr-3 mt-1">Illus. Google/Imagen 3</p>
+            <p className="text-xs italic text-right mr-3 mt-1 flex-shrink-0">Illus. Google/Imagen 3</p>
 
             {/* Attacks Section */}
-            <div className="mx-2 mt-2 p-2 border-4 border-card-b-gold rounded-md bg-[#fdf2d4] flex-1 flex flex-col justify-around">
+            <div className="mx-2 mt-2 p-2 border-4 border-card-b-gold rounded-md bg-[#fdf2d4] flex flex-col gap-1 flex-shrink-0">
                 <div className="attack">
-                    <div className="flex justify-between items-center mb-1">
+                    <div className="flex justify-between items-center">
                         <div className="flex items-center">
                             <div className={`w-6 h-6 rounded-full ${style.bg} flex items-center justify-center text-sm mr-2`}>{style.symbol}</div>
                             <h3 className="font-bold text-lg">{attack_1_name}</h3>
                         </div>
                         <span className="font-bold text-xl">{attack_1_damage}</span>
                     </div>
-                    <p className="text-sm leading-tight">
+                    <p className="text-sm leading-tight mt-1">
                         {attack_1_description}
                     </p>
                 </div>
 
                 {/* Pokédex Entry */}
-                <div className="mt-2 pt-2 border-t-2 border-dotted border-card-b-gold">
+                <div className="mt-1 pt-1 border-t-2 border-dotted border-card-b-gold">
                     <p className="text-xs italic leading-tight">
                        {pokedex_entry}
                     </p>
@@ -77,7 +77,7 @@ const PokemonCard = forwardRef<HTMLDivElement, GenerationResult>(({ cardData, ar
             </div>
             
              {/* Footer */}
-            <div className="text-center mt-2">
+            <div className="text-center mt-2 flex-shrink-0">
                 <p className="text-[10px] font-mono">&copy;2024 Pokémon Card Generator</p>
             </div>
         </div>

@@ -25,11 +25,20 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
   const cardRef = useRef<HTMLDivElement>(null);
 
   const handleDownload = useCallback(() => {
-    if (cardRef.current === null) {
+    const node = cardRef.current;
+    if (node === null) {
       return;
     }
 
-    toPng(cardRef.current, { cacheBust: true, pixelRatio: 2 })
+    // Set a fixed width for rendering to ensure consistency and quality
+    const originalStyle = {
+        width: node.style.width,
+        margin: node.style.margin,
+    };
+    node.style.width = '480px';
+    node.style.margin = '0'; // Ensure no margins interfere with rendering
+
+    toPng(node, { cacheBust: true, pixelRatio: 2 })
       .then((dataUrl) => {
         const link = document.createElement('a');
         const name = generationResult?.cardData?.pokemon_name || 'pokemon-card';
@@ -39,24 +48,33 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
       })
       .catch((err) => {
         console.error('Failed to download card image', err);
+      })
+      .finally(() => {
+        // Restore original style
+        if(node) {
+            node.style.width = originalStyle.width;
+            node.style.margin = originalStyle.margin;
+        }
       });
   }, [generationResult]);
 
   return (
     <div className="w-full p-4 bg-[#2c2c54] border-2 border-purple-500 rounded-lg shadow-lg flex flex-col gap-4 h-full">
       <h2 className="text-xl text-center text-yellow-300">Output</h2>
-      <div className="w-full aspect-[3/4] bg-[#131325] border-2 border-cyan-400 rounded-lg flex items-center justify-center overflow-hidden">
+      <div className="w-full min-h-[60vh] md:min-h-0 bg-[#131325] border-2 border-cyan-400 rounded-lg flex items-center justify-center overflow-auto p-2">
         {isLoading && <Loader />}
         {!isLoading && generationResult && (
-          <PokemonCard ref={cardRef} {...generationResult} />
+          <div className="w-full max-w-sm mx-auto">
+             <PokemonCard ref={cardRef} {...generationResult} />
+          </div>
         )}
         {!isLoading && !generationResult && <Placeholder />}
       </div>
-       <div className="text-center h-10 flex items-center justify-center">
+       <div className="text-center h-10 flex items-center justify-center mt-auto pt-4">
         {generationResult && !isLoading && (
             <button
                 onClick={handleDownload}
-                className="w-full mt-auto px-4 py-3 bg-green-600 text-white font-bold rounded-md transition-all duration-200 ease-in-out enabled:hover:bg-green-700 enabled:active:scale-95 disabled:bg-gray-600 disabled:cursor-not-allowed flex items-center justify-center text-sm sm:text-base"
+                className="w-full px-4 py-3 bg-green-600 text-white font-bold rounded-md transition-all duration-200 ease-in-out enabled:hover:bg-green-700 enabled:active:scale-95 disabled:bg-gray-600 disabled:cursor-not-allowed flex items-center justify-center text-sm sm:text-base"
             >
                 DOWNLOAD CARD
             </button>

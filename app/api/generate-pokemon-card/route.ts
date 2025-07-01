@@ -89,7 +89,7 @@ export async function POST(request: Request) {
     }
     
     // Step 2: Generate only the Pokémon's artwork using the image model.
-    const artworkPrompt = `Masterpiece, professional trading card game art. A square illustration of the following character: "${cardData.subject_description}".
+    const artworkPrompt = `Masterpiece, professional trading card game art. A portrait-style illustration (3:4 aspect ratio) of the following character: "${cardData.subject_description}".
 The character MUST be in the style of a classic Pokémon.
 The background should be simple, thematically matching a ${cardData.pokemon_type}-type Pokémon.
 The image should be a centered, full-body shot of the character.
@@ -101,7 +101,7 @@ Do NOT include any text, borders, or card elements. ONLY the artwork.`;
         config: { 
             numberOfImages: 1,
             outputMimeType: 'image/jpeg',
-            aspectRatio: '1:1', // Square artwork
+            aspectRatio: '3:4', // Portrait artwork
         },
     });
 
