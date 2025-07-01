@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { forwardRef, useEffect } from 'react';
+import React, { forwardRef, useEffect, useState, useRef } from 'react';
 import type { GenerationResult } from '../services/geminiService';
 
 const typeStyles: { [key: string]: { bg: string; symbol: string; text: string; } } = {
@@ -34,12 +34,61 @@ const PokemonCard = forwardRef<HTMLDivElement, PokemonCardProps>(({ cardData, ar
         pokedex_entry
     } = cardData;
 
+    const [displayUrl, setDisplayUrl] = useState<string | null>(null);
+    const objectUrlRef = useRef<string | null>(null);
+
     useEffect(() => {
-        if (artworkUrl && onArtworkLoad) {
-            const img = new Image();
-            img.src = artworkUrl;
-            img.onload = onArtworkLoad;
+        if (!artworkUrl) {
+            setDisplayUrl(null);
+            return;
         }
+
+        // To fix iOS rendering issues with html-to-image, we convert the data URL
+        // to a blob and then create an object URL from it. This is more compatible.
+        fetch(artworkUrl)
+            .then(res => res.blob())
+            .then(blob => {
+                const newObjectUrl = URL.createObjectURL(blob);
+                
+                // Clean up the previous object URL if one exists
+                if (objectUrlRef.current) {
+                    URL.revokeObjectURL(objectUrlRef.current);
+                }
+                objectUrlRef.current = newObjectUrl;
+                setDisplayUrl(newObjectUrl);
+
+                // Preload the image from the blob URL to ensure it's ready for display
+                // and for the html-to-image library to capture.
+                const img = new Image();
+                img.src = newObjectUrl;
+                img.onload = () => {
+                    if (onArtworkLoad) onArtworkLoad();
+                };
+                img.onerror = (err) => {
+                    console.error("Error loading image from blob URL, falling back to data URL.", err);
+                    // Fallback to the original URL if blob fails
+                    setDisplayUrl(artworkUrl);
+                    if (onArtworkLoad) onArtworkLoad(); 
+                };
+            })
+            .catch(err => {
+                console.error("Failed to fetch data URL as blob:", err);
+                // Fallback to using the original data URL directly
+                setDisplayUrl(artworkUrl);
+                const img = new Image();
+                img.src = artworkUrl;
+                img.onload = () => {
+                    if (onArtworkLoad) onArtworkLoad();
+                };
+            });
+
+        // Cleanup function for when the component unmounts
+        return () => {
+            if (objectUrlRef.current) {
+                URL.revokeObjectURL(objectUrlRef.current);
+                objectUrlRef.current = null;
+            }
+        };
     }, [artworkUrl, onArtworkLoad]);
 
     const style = typeStyles[pokemon_type] || typeStyles.default;
@@ -64,7 +113,7 @@ const PokemonCard = forwardRef<HTMLDivElement, PokemonCardProps>(({ cardData, ar
                     <div
                         className="w-full h-full"
                         style={{
-                            backgroundImage: `url(${artworkUrl})`,
+                            backgroundImage: displayUrl ? `url(${displayUrl})` : 'none',
                             backgroundSize: 'cover',
                             backgroundPosition: 'center',
                             backgroundRepeat: 'no-repeat',
