@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useRef, useCallback, useState, useEffect } from 'react';
@@ -30,6 +29,16 @@ interface PreviewModalData {
 
 const PreviewAndSaveModal = ({ modalData, onClose }: { modalData: PreviewModalData; onClose: () => void; }) => {
     const { dataUrl, file, name, fileName } = modalData;
+    const [isShareApiSupported, setIsShareApiSupported] = useState(false);
+
+    // This effect runs on the client after the component mounts,
+    // so `navigator` object is guaranteed to be available.
+    useEffect(() => {
+        if (navigator.share) {
+            setIsShareApiSupported(true);
+        }
+    }, []);
+
 
     const handleShare = async () => {
         try {
@@ -66,7 +75,7 @@ const PreviewAndSaveModal = ({ modalData, onClose }: { modalData: PreviewModalDa
                     />
                 </div>
                 <div className="flex flex-col gap-3">
-                    {navigator.share && (
+                    {isShareApiSupported && (
                          <button
                             onClick={handleShare}
                             className="w-full px-4 py-3 bg-cyan-500 text-white font-bold rounded-md transition-all duration-200 ease-in-out hover:bg-cyan-600 active:scale-95 text-lg"
