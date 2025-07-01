@@ -48,7 +48,7 @@ const PokemonCard = forwardRef<HTMLDivElement, GenerationResult>(({ cardData, ar
 
                 {/* Artwork */}
                 <div className="mx-[10px] mt-1 border-[5px] border-card-b-gold holo-background rounded-lg overflow-hidden h-[210px]">
-                    <img src={artworkUrl} alt={`Artwork for ${pokemon_name}`} className="w-full h-full object-cover" />
+                    <img src={artworkUrl} alt={`Artwork for ${pokemon_name}`} className="w-full h-full object-cover" crossOrigin="anonymous" />
                 </div>
 
                 {/* Illustrator credit */}
