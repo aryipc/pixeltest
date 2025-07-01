@@ -37,6 +37,9 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
       return;
     }
 
+    // Add a class to the body to disable animations during capture
+    document.body.classList.add('capturing');
+
     toPng(node, {
         cacheBust: true,
         width: node.offsetWidth,
@@ -53,6 +56,10 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
       .catch((err) => {
         console.error('Failed to download card image', err);
         alert('Sorry, failed to download image. Please try again.');
+      })
+      .finally(() => {
+        // Always remove the class after the operation is complete
+        document.body.classList.remove('capturing');
       });
   }, [generationResult]);
 

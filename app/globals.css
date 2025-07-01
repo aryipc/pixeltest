@@ -17,3 +17,13 @@ body {
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
+
+/* 
+  Disable animations and transitions when the 'capturing' class is present on the body.
+  This stabilizes the DOM for the html-to-image library, preventing rendering bugs
+  on certain browsers like iOS Safari.
+*/
+body.capturing * {
+  animation: none !important;
+  transition: none !important;
+}

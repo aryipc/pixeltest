@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { forwardRef, useEffect, useState, useRef } from 'react';
+import React, { forwardRef, useEffect } from 'react';
 import type { GenerationResult } from '../services/geminiService';
 
 const typeStyles: { [key: string]: { bg: string; symbol: string; text: string; } } = {
@@ -34,61 +34,21 @@ const PokemonCard = forwardRef<HTMLDivElement, PokemonCardProps>(({ cardData, ar
         pokedex_entry
     } = cardData;
 
-    const [displayUrl, setDisplayUrl] = useState<string | null>(null);
-    const objectUrlRef = useRef<string | null>(null);
-
     useEffect(() => {
-        if (!artworkUrl) {
-            setDisplayUrl(null);
-            return;
+        // To ensure the download button is enabled only after the image is ready,
+        // we use a simple and reliable preloading mechanism. An in-memory Image 
+        // object is created to load the artwork data URL. Its `onload` event 
+        // safely triggers the callback, ensuring the artwork is decoded before download.
+        if (artworkUrl && onArtworkLoad) {
+            const img = new Image();
+            img.src = artworkUrl;
+            img.onload = onArtworkLoad;
+            img.onerror = () => {
+                console.error("Artwork failed to load from data URL.");
+                // Still call it to unblock the button, even if it might fail.
+                onArtworkLoad();
+            };
         }
-
-        // To fix iOS rendering issues with html-to-image, we convert the data URL
-        // to a blob and then create an object URL from it. This is more compatible.
-        fetch(artworkUrl)
-            .then(res => res.blob())
-            .then(blob => {
-                const newObjectUrl = URL.createObjectURL(blob);
-                
-                // Clean up the previous object URL if one exists
-                if (objectUrlRef.current) {
-                    URL.revokeObjectURL(objectUrlRef.current);
-                }
-                objectUrlRef.current = newObjectUrl;
-                setDisplayUrl(newObjectUrl);
-
-                // Preload the image from the blob URL to ensure it's ready for display
-                // and for the html-to-image library to capture.
-                const img = new Image();
-                img.src = newObjectUrl;
-                img.onload = () => {
-                    if (onArtworkLoad) onArtworkLoad();
-                };
-                img.onerror = (err) => {
-                    console.error("Error loading image from blob URL, falling back to data URL.", err);
-                    // Fallback to the original URL if blob fails
-                    setDisplayUrl(artworkUrl);
-                    if (onArtworkLoad) onArtworkLoad(); 
-                };
-            })
-            .catch(err => {
-                console.error("Failed to fetch data URL as blob:", err);
-                // Fallback to using the original data URL directly
-                setDisplayUrl(artworkUrl);
-                const img = new Image();
-                img.src = artworkUrl;
-                img.onload = () => {
-                    if (onArtworkLoad) onArtworkLoad();
-                };
-            });
-
-        // Cleanup function for when the component unmounts
-        return () => {
-            if (objectUrlRef.current) {
-                URL.revokeObjectURL(objectUrlRef.current);
-                objectUrlRef.current = null;
-            }
-        };
     }, [artworkUrl, onArtworkLoad]);
 
     const style = typeStyles[pokemon_type] || typeStyles.default;
@@ -108,19 +68,18 @@ const PokemonCard = forwardRef<HTMLDivElement, PokemonCardProps>(({ cardData, ar
                     </div>
                 </div>
 
-                {/* Artwork */}
+                {/* Artwork - Using inline SVG for robust image capture on all browsers */}
                 <div className="mx-[10px] mt-1 border-[5px] border-card-b-gold holo-background rounded-lg overflow-hidden h-[210px]">
-                    <div
-                        className="w-full h-full"
-                        style={{
-                            backgroundImage: displayUrl ? `url(${displayUrl})` : 'none',
-                            backgroundSize: 'cover',
-                            backgroundPosition: 'center',
-                            backgroundRepeat: 'no-repeat',
-                        }}
-                        role="img"
-                        aria-label={`Artwork for ${pokemon_name}`}
-                    />
+                    {artworkUrl && (
+                        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" aria-label={`Artwork for ${pokemon_name}`}>
+                            <image 
+                                href={artworkUrl} 
+                                width="100%" 
+                                height="100%" 
+                                preserveAspectRatio="xMidYMid slice"
+                            />
+                        </svg>
+                    )}
                 </div>
 
                 {/* Illustrator credit */}
