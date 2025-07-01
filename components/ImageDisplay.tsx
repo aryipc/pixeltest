@@ -98,8 +98,10 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
     setIsCapturing(true);
 
     try {
-      // Wait for React to re-render with isCapturing=true to disable animations
-      await new Promise(resolve => setTimeout(resolve, 50));
+      // Add a short delay. This serves two purposes:
+      // 1. Allows React to re-render with isCapturing=true, disabling animations.
+      // 2. Provides a crucial buffer for the browser to finish painting the artwork, preventing race conditions.
+      await new Promise(resolve => setTimeout(resolve, 250));
 
       // Ensure all custom fonts are loaded and ready before capturing
       await document.fonts.ready;
