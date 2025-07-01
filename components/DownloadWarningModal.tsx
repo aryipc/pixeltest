@@ -25,22 +25,30 @@ const DownloadWarningModal: React.FC<DownloadWarningModalProps> = ({ isOpen, onC
           Mobile Download Notice
         </h3>
         
-        <div className="text-sm sm:text-base space-y-4 text-gray-200 leading-relaxed">
+        <div className="text-sm sm:text-base space-y-3 text-gray-200 leading-relaxed">
            <p>On mobile, your first download might be a low-quality preview.</p>
-           <p>Please <strong className="text-cyan-300">check the file size</strong> after saving.</p>
+           <p>Please check <strong className="text-cyan-300">the file size</strong> after saving.</p>
         
             <div className="flex justify-around items-start gap-4 my-4">
                 {/* Correct Example */}
                 <div className="flex flex-col items-center text-center gap-2">
                     <span className="text-3xl" role="img" aria-label="Checkmark">✅</span>
-                    <img src="/hylian-salah.png" alt="Example of a correct, high-quality download (over 400KB)" className="rounded-md border-2 border-green-400 w-32 h-auto object-contain"/>
+                    <div className="w-28 h-28 border-2 border-green-400 rounded-lg flex items-center justify-center bg-[#1a1a2e]">
+                        <div className="w-8 h-8 border-2 border-cyan-400 rounded-sm flex items-center justify-center">
+                            <span className="text-cyan-400 font-bold text-xl">?</span>
+                        </div>
+                    </div>
                     <p className="text-xs font-bold text-green-300">CORRECT<br/>(&gt; 400KB)</p>
                 </div>
 
                 {/* Incorrect Example */}
                 <div className="flex flex-col items-center text-center gap-2">
                     <span className="text-3xl" role="img" aria-label="Cross mark">❌</span>
-                    <img src="/hylian-guard.png" alt="Example of an incorrect, low-quality preview (under 100KB)" className="rounded-md border-2 border-red-400 w-32 h-auto object-contain"/>
+                    <div className="w-28 h-28 border-2 border-red-400 rounded-lg flex items-center justify-center bg-[#1a1a2e]">
+                        <div className="w-8 h-8 border-2 border-cyan-400 rounded-sm flex items-center justify-center">
+                            <span className="text-cyan-400 font-bold text-xl">?</span>
+                        </div>
+                    </div>
                     <p className="text-xs font-bold text-red-400">PREVIEW<br/>(&lt; 100KB)</p>
                 </div>
             </div>
