@@ -2,7 +2,7 @@
 "use client";
 
 import React, { forwardRef, useEffect } from 'react';
-import type { GenerationResult } from '../services/geminiService';
+import type { GenerationResult } from '@/services/geminiService';
 
 const typeStyles: { [key: string]: { bg: string; symbol: string; text: string; } } = {
   Grass: { bg: 'bg-[#78c850]', symbol: '🌿', text: 'text-white' },

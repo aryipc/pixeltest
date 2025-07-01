@@ -1,10 +1,11 @@
+
 "use client";
 
 import React, { useState, useCallback } from 'react';
-import { generatePokemonCard, GenerationResult } from '../services/geminiService';
-import Header from '../components/Header';
-import PromptInput from '../components/PromptInput';
-import ImageDisplay from '../components/ImageDisplay';
+import { generatePokemonCard, GenerationResult } from '@/services/geminiService';
+import Header from '@/components/Header';
+import PromptInput from '@/components/PromptInput';
+import ImageDisplay from '@/components/ImageDisplay';
 
 export default function Home() {
   const [inputImage, setInputImage] = useState<File | null>(null);

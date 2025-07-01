@@ -5,7 +5,7 @@ import React, { useRef, useCallback, useState, useEffect } from 'react';
 import domtoimage from 'dom-to-image-more';
 import Loader from './Loader';
 import PokemonCard from './PokemonCard';
-import type { GenerationResult } from '../services/geminiService';
+import type { GenerationResult } from '@/services/geminiService';
 
 interface ImageDisplayProps {
   generationResult: GenerationResult | null;
