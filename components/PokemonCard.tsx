@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { forwardRef } from 'react';
@@ -38,10 +37,10 @@ const PokemonCard = forwardRef<HTMLDivElement, GenerationResult>(({ cardData, ar
             <div>
                 {/* Header */}
                 <div className="flex justify-between items-baseline px-2 pt-1 flex-shrink-0">
-                    <h2 className="font-extrabold" style={{fontFamily: "'Press Start 2P', cursive", fontSize: '26px'}}>{pokemon_name}</h2>
+                    <h2 className="font-extrabold" style={{fontFamily: "'Press Start 2P', cursive", fontSize: '20px'}}>{pokemon_name}</h2>
                     <div className="flex items-center">
-                        <span className="font-bold mr-1" style={{fontSize: '18px'}}>{hp} HP</span>
-                        <div className={`w-8 h-8 rounded-full ${style.bg} flex items-center justify-center text-lg`}>
+                        <span className="font-bold mr-1" style={{fontSize: '15px'}}>{hp} HP</span>
+                        <div className={`w-6 h-6 rounded-full ${style.bg} flex items-center justify-center text-sm`}>
                             {style.symbol}
                         </div>
                     </div>

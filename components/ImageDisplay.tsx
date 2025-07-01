@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useRef, useCallback } from 'react';
@@ -32,8 +31,11 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
 
     toPng(node, { 
         cacheBust: true,
-        width: 750,
-        height: 1050,
+        // Set width, height, and pixelRatio for better rendering quality,
+        // especially with custom fonts.
+        width: node.offsetWidth,
+        height: node.offsetHeight,
+        pixelRatio: 2,
     })
       .then((dataUrl) => {
         const link = document.createElement('a');
