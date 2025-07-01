@@ -24,6 +24,9 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
   const cardRef = useRef<HTMLDivElement>(null);
   const [isArtworkLoaded, setIsArtworkLoaded] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [finalCardUrl, setFinalCardUrl] = useState<string | null>(null);
+
 
   // When a new card is generated, reset the artwork loaded state.
   useEffect(() => {
@@ -68,11 +71,9 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
           link.click();
           document.body.removeChild(link);
       } else {
-          // MOBILE: Open image in a new tab for the user to save or share via long-press.
-          const newTab = window.open(dataUrl, '_blank');
-          if (!newTab) {
-              alert("Your browser blocked the pop-up. Please enable pop-ups for this site to view and save your card.");
-          }
+          // MOBILE: Show a modal with the image for saving.
+          setFinalCardUrl(dataUrl);
+          setShowSaveModal(true);
       }
     } catch (err: any) {
         console.error('Failed to capture or download card image:', err);
@@ -110,6 +111,25 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
             </button>
         )}
       </div>
+
+      {showSaveModal && finalCardUrl && (
+        <div className="fixed inset-0 bg-black bg-opacity-80 flex flex-col items-center justify-center z-50 p-4" role="dialog" aria-modal="true" onClick={() => setShowSaveModal(false)}>
+          <div className="bg-[#2c2c54] p-4 sm:p-6 rounded-lg shadow-xl border-2 border-purple-500 max-w-md w-full text-center flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-yellow-300 mb-4">Save Your Card</h3>
+            <p className="text-white mb-4 text-sm">Long-press or right-click the image to save.</p>
+            <div className="p-1 bg-gray-800 rounded-md">
+                <img src={finalCardUrl} alt="Generated Pokémon Card" className="max-w-full rounded-md mx-auto" />
+            </div>
+            <button 
+              onClick={() => setShowSaveModal(false)}
+              className="mt-6 px-6 py-2 bg-pink-600 text-white font-bold rounded-md hover:bg-pink-700 transition-colors w-full sm:w-auto mx-auto"
+              aria-label="Close save dialog"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
