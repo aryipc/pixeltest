@@ -34,7 +34,7 @@ const PreviewAndSaveModal = ({ modalData, onClose }: { modalData: PreviewModalDa
     // This effect runs on the client after the component mounts,
     // so `navigator` object is guaranteed to be available.
     useEffect(() => {
-        if (typeof window !== 'undefined' && navigator.share) {
+        if (typeof window !== 'undefined' && 'share' in navigator) {
             setIsShareApiSupported(true);
         }
     }, []);
