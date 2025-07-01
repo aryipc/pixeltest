@@ -61,11 +61,40 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
   const [isCapturing, setIsCapturing] = useState(false);
   const [saveModalUrl, setSaveModalUrl] = useState<string | null>(null);
 
+  // This effect implements a robust preloading strategy for the generated artwork.
+  // It ensures the download button is enabled only after the image is fully decoded
+  // and ready to be painted, preventing race conditions on all devices.
   useEffect(() => {
-    if (!generationResult) {
-      setIsArtworkLoaded(false);
+    // 1. Reset the loaded state whenever a new card is generated or cleared.
+    setIsArtworkLoaded(false);
+
+    // 2. If there's no artwork URL, there's nothing to load.
+    if (!generationResult?.artworkUrl) {
+      return;
     }
-  }, [generationResult]);
+
+    // 3. Preload the image in memory.
+    const img = new Image();
+    img.src = generationResult.artworkUrl;
+
+    const handleLoad = () => {
+      // 4. Once the image is decoded by the browser (`onload` fires),
+      //    we wait for the next available browser paint cycle.
+      requestAnimationFrame(() => {
+        // 5. Finally, we set the state, which enables the "Download" button.
+        //    This guarantees the button is only active after the image is visually ready.
+        setIsArtworkLoaded(true);
+      });
+    };
+
+    img.onload = handleLoad;
+    img.onerror = () => {
+      console.error("Artwork preload failed.");
+      // Unblock the UI even on error so the user can download the card frame.
+      handleLoad();
+    };
+
+  }, [generationResult]); // This effect re-runs whenever the generation result changes.
 
   // Effect to clean up blob URLs when they are no longer needed.
   useEffect(() => {
@@ -77,17 +106,6 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
     };
   }, [saveModalUrl]);
 
-  const onArtworkLoad = useCallback(() => {
-    // The image data is loaded, but to prevent a race condition, we need to
-    // wait for the browser to actually paint it. requestAnimationFrame is the
-    // perfect tool for this, as it executes a callback right before the next repaint.
-    requestAnimationFrame(() => {
-      // By setting state inside this callback, we ensure the "Download" button is
-      // enabled only after the artwork is visually present on the card.
-      setIsArtworkLoaded(true);
-    });
-  }, []); // This callback has no dependencies.
-
   const handleDownload = useCallback(async () => {
     const node = cardRef.current;
     if (node === null || !isArtworkLoaded || !generationResult) {
@@ -98,57 +116,61 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
     setIsCapturing(true);
 
     try {
-      // Add a short delay. This serves two purposes:
-      // 1. Allows React to re-render with isCapturing=true, disabling animations.
-      // 2. Provides a crucial buffer for the browser to finish painting the artwork, preventing race conditions.
       await new Promise(resolve => setTimeout(resolve, 250));
-
-      // Ensure all custom fonts are loaded and ready before capturing
       await document.fonts.ready;
 
       const dataUrl = await toPng(node, { 
-        pixelRatio: 2, // Good balance of quality and file size
-        cacheBust: true, // Helps with fresh rendering of content
+        pixelRatio: 2,
+        cacheBust: true,
       });
       
       const name = generationResult.cardData.pokemon_name || 'pokemon-card';
       const fileName = `${name.toLowerCase().replace(/\s/g, '-')}.png`;
-
-      // Convert dataURL to Blob/File for Web Share API and fallbacks
       const blob = await (await fetch(dataUrl)).blob();
-      const file = new File([blob], fileName, { type: blob.type });
+      
+      // Separate download logic for Desktop, iOS, and other Mobile devices.
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      const isDesktop = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
-      // Method 1: Use Web Share API if available (best experience on mobile)
-      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: 'My Pokémon Card',
-          text: `Check out my custom Pokémon card: ${name}!`,
-        });
-      } else {
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-        
-        // Method 2: Fallback to a modal for iOS, using a more reliable Blob URL
-        if (isIOS) {
-          const blobUrl = URL.createObjectURL(blob);
-          setSaveModalUrl(blobUrl);
+      if (isDesktop) {
+        // DESKTOP: Direct, silent download. Best UX for mouse/keyboard users.
+        const blobUrl = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.download = fileName;
+        link.href = blobUrl;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(blobUrl);
+      } else if (isIOS) {
+        // IOS: Always show the modal with "tap and hold" instructions.
+        const blobUrl = URL.createObjectURL(blob);
+        setSaveModalUrl(blobUrl);
+      } else if (navigator.share) {
+        // ANDROID / OTHER MOBILE: Use the modern Web Share API.
+        const file = new File([blob], fileName, { type: blob.type });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+                files: [file],
+                title: 'My Pokémon Card',
+                text: `Check out my custom Pokémon card: ${name}!`,
+            });
         } else {
-          // Method 3: Standard desktop download using a Blob URL
-          const blobUrl = URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.download = fileName;
-          link.href = blobUrl;
-          document.body.appendChild(link); // Required for Firefox
-          link.click();
-          document.body.removeChild(link);
-          URL.revokeObjectURL(blobUrl); // Clean up immediately
+           throw new Error("Cannot share this file type.");
         }
+      } else {
+        // FALLBACK for older mobile devices: Direct download.
+        const blobUrl = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.download = fileName;
+        link.href = blobUrl;
+        link.click();
+        URL.revokeObjectURL(blobUrl);
       }
     } catch (err: any) {
-        // Don't show error if user cancels the share dialog
-        if (err.name !== 'AbortError') {
+        if (err.name !== 'AbortError') { // User canceling share is not an error
             console.error('Failed to capture or share card image:', err);
-            alert('Sorry, failed to download image. This can happen if the font or artwork fails to load. Please try again.');
+            alert('Sorry, failed to download image. Please try again.');
         }
     } finally {
       setIsCapturing(false);
@@ -156,7 +178,7 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
   }, [generationResult, isArtworkLoaded]);
   
   const handleCloseModal = () => {
-    setSaveModalUrl(null); // This will also trigger the useEffect cleanup to revoke the URL
+    setSaveModalUrl(null);
   };
 
   return (
@@ -170,7 +192,6 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
                <PokemonCard 
                   ref={cardRef} 
                   {...generationResult} 
-                  onArtworkLoad={onArtworkLoad}
                   isCapturing={isCapturing}
                />
             </div>
