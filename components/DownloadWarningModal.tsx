@@ -7,6 +7,22 @@ interface DownloadWarningModalProps {
   onClose: () => void;
 }
 
+const FileInfoPreview: React.FC<{ sizeKB: number }> = ({ sizeKB }) => {
+  return (
+    <svg width="100" height="50" viewBox="0 0 100 50" xmlns="http://www.w3.org/2000/svg">
+      {/* File Icon */}
+      <g transform="translate(0, 5)">
+        <path d="M0 0 H24 V36 H0 Z" fill="#4A5568" />
+        <path d="M18 0 L24 6 H18 V0 Z" fill="#A0AEC0" />
+        <text x="12" y="23" fontFamily="sans-serif" fontSize="9" fill="white" textAnchor="middle">PNG</text>
+      </g>
+      {/* Text Details */}
+      <text x="32" y="18" fontFamily="sans-serif" fontSize="10" fill="#E2E8F0">PNG Image</text>
+      <text x="32" y="38" fontFamily="sans-serif" fontSize="12" fill="white" fontWeight="bold">{sizeKB} KB</text>
+    </svg>
+  );
+};
+
 const DownloadWarningModal: React.FC<DownloadWarningModalProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
@@ -33,10 +49,8 @@ const DownloadWarningModal: React.FC<DownloadWarningModalProps> = ({ isOpen, onC
                 {/* Correct Example */}
                 <div className="flex flex-col items-center text-center gap-2">
                     <span className="text-3xl" role="img" aria-label="Checkmark">✅</span>
-                    <div className="w-28 h-28 border-2 border-green-400 rounded-lg flex items-center justify-center bg-[#1a1a2e]">
-                        <div className="w-8 h-8 border-2 border-cyan-400 rounded-sm flex items-center justify-center">
-                            <span className="text-cyan-400 font-bold text-xl">?</span>
-                        </div>
+                    <div className="w-28 h-28 border-2 border-green-400 rounded-lg flex items-center justify-center bg-[#1a1a2e] p-1">
+                        <FileInfoPreview sizeKB={498} />
                     </div>
                     <p className="text-xs font-bold text-green-300">CORRECT<br/>(&gt; 400KB)</p>
                 </div>
@@ -44,10 +58,8 @@ const DownloadWarningModal: React.FC<DownloadWarningModalProps> = ({ isOpen, onC
                 {/* Incorrect Example */}
                 <div className="flex flex-col items-center text-center gap-2">
                     <span className="text-3xl" role="img" aria-label="Cross mark">❌</span>
-                    <div className="w-28 h-28 border-2 border-red-400 rounded-lg flex items-center justify-center bg-[#1a1a2e]">
-                        <div className="w-8 h-8 border-2 border-cyan-400 rounded-sm flex items-center justify-center">
-                            <span className="text-cyan-400 font-bold text-xl">?</span>
-                        </div>
+                    <div className="w-28 h-28 border-2 border-red-400 rounded-lg flex items-center justify-center bg-[#1a1a2e] p-1">
+                        <FileInfoPreview sizeKB={92} />
                     </div>
                     <p className="text-xs font-bold text-red-400">PREVIEW<br/>(&lt; 100KB)</p>
                 </div>
