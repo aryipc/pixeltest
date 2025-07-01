@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useRef, useCallback, useState, useEffect } from 'react';
-import domtoimage from 'dom-to-image-more';
+import { toPng } from 'html-to-image';
 import Loader from './Loader';
 import PokemonCard from './PokemonCard';
 import type { GenerationResult } from '@/services/geminiService';
@@ -32,46 +32,59 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
     }
   }, [generationResult]);
 
-  const handleDownload = useCallback(() => {
+  const handleDownload = useCallback(async () => {
     const node = cardRef.current;
-    if (node === null) {
+    if (node === null || !isArtworkLoaded) {
+      console.warn("Download cancelled: Card element not ready or artwork not loaded.");
       return;
     }
 
-    // Set capturing mode to render a simplified card for stability
     setIsCapturing(true);
 
-    // Use a short timeout to allow React to re-render the component
-    // with the simplified styles before we attempt to capture it.
-    setTimeout(() => {
-        // Using dom-to-image-more as it's more robust on iOS/Safari.
-        // The scaling method is recommended for high-resolution captures.
-        const scale = 2;
-        domtoimage.toPng(node, {
-            width: node.offsetWidth * scale,
-            height: node.offsetHeight * scale,
-            style: {
-                transform: `scale(${scale})`,
-                transformOrigin: 'top left',
-            }
-        })
-        .then((dataUrl: string) => {
-            const link = document.createElement('a');
-            const name = generationResult?.cardData?.pokemon_name || 'pokemon-card';
-            link.download = `${name.toLowerCase().replace(/\s/g, '-')}.png`;
-            link.href = dataUrl;
-            link.click();
-        })
-        .catch((err: any) => {
-            console.error('Failed to download card image', err);
-            alert('Sorry, failed to download image. Please try again.');
-        })
-        .finally(() => {
-            // Always turn off capturing mode, even if an error occurs.
-            setIsCapturing(false);
-        });
-    }, 100); // 100ms delay for DOM update
-  }, [generationResult]);
+    try {
+      // Wait for React to re-render with isCapturing=true to disable animations
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      // Ensure all custom fonts are loaded and ready before capturing
+      await document.fonts.ready;
+
+      const dataUrl = await toPng(node, { 
+        pixelRatio: 2, // Good balance of quality and file size
+        cacheBust: true, // Helps with fresh rendering of content
+      });
+
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+
+      if (isIOS) {
+        const newWindow = window.open();
+        if (newWindow) {
+          newWindow.document.write(`
+            <body style="margin: 0; background: #1a1a2e; color: white; font-family: sans-serif; text-align: center; display: flex; align-items: center; justify-content: center; min-height: 100vh;">
+              <div style="padding: 1rem;">
+                <h1 style="font-size: 1.5rem; margin-bottom: 1rem;">Save Your Card</h1>
+                <p style="margin-bottom: 2rem;">Tap and hold the image, then select "Save to Photos" or "Add to Photos".</p>
+                <img src="${dataUrl}" alt="Generated Pokémon Card" style="max-width: 90vw; max-height: 70vh; border-radius: 10px; box-shadow: 0 0 20px rgba(255,255,255,0.3);" />
+              </div>
+            </body>
+          `);
+          newWindow.document.title = "Save Pokémon Card";
+        } else {
+          alert("Your browser blocked the new window. Please allow pop-ups for this site to save your card.");
+        }
+      } else {
+        const link = document.createElement('a');
+        const name = generationResult?.cardData?.pokemon_name || 'pokemon-card';
+        link.download = `${name.toLowerCase().replace(/\s/g, '-')}.png`;
+        link.href = dataUrl;
+        link.click();
+      }
+    } catch (err: any) {
+      console.error('Failed to capture card image:', err);
+      alert('Sorry, failed to download image. This can happen if the font or artwork fails to load. Please try again.');
+    } finally {
+      setIsCapturing(false);
+    }
+  }, [generationResult, isArtworkLoaded]);
 
   return (
     <div className="w-full p-4 bg-[#2c2c54] border-2 border-purple-500 rounded-lg shadow-lg flex flex-col gap-4 h-full">
@@ -94,10 +107,10 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
         {generationResult && !isLoading && (
             <button
                 onClick={handleDownload}
-                disabled={!isArtworkLoaded}
+                disabled={!isArtworkLoaded || isCapturing}
                 className="w-full px-4 py-3 bg-green-600 text-white font-bold rounded-md transition-all duration-200 ease-in-out enabled:hover:bg-green-700 enabled:active:scale-95 disabled:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-sm sm:text-base"
             >
-                {isArtworkLoaded ? 'DOWNLOAD CARD' : 'LOADING ARTWORK...'}
+                {isCapturing ? 'PREPARING IMAGE...' : (isArtworkLoaded ? 'DOWNLOAD CARD' : 'LOADING ARTWORK...')}
             </button>
         )}
       </div>
