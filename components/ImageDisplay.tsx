@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useRef, useCallback } from 'react';
@@ -29,7 +30,7 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
       return;
     }
 
-    toPng(node, { 
+    toPng(node, {
         cacheBust: true,
         // Set width, height, and pixelRatio for better rendering quality,
         // especially with custom fonts.
