@@ -1,7 +1,6 @@
-
 "use client";
 
-import React, { forwardRef, useEffect } from 'react';
+import React, { forwardRef } from 'react';
 import type { GenerationResult } from '@/services/geminiService';
 
 const typeStyles: { [key: string]: { bg: string; symbol: string; text: string; } } = {
@@ -35,22 +34,19 @@ const PokemonCard = forwardRef<HTMLDivElement, PokemonCardProps>(({ cardData, ar
         pokedex_entry
     } = cardData;
 
-    useEffect(() => {
-        if (artworkUrl && onArtworkLoad) {
-            const img = new Image();
-            img.src = artworkUrl;
-            img.onload = onArtworkLoad;
-            img.onerror = () => {
-                console.error("Artwork failed to load from data URL.");
-                onArtworkLoad();
-            };
-        }
-    }, [artworkUrl, onArtworkLoad]);
-
     const style = typeStyles[pokemon_type] || typeStyles.default;
     
     // Conditionally apply a static background during capture to prevent animation bugs.
     const artworkContainerClass = `mx-[10px] mt-1 border-[5px] border-card-b-gold rounded-lg overflow-hidden h-[210px] ${isCapturing ? 'bg-gray-200' : 'holo-background'}`;
+
+    const handleArtworkError = () => {
+        console.error("Artwork failed to load from data URL.");
+        // Still call onArtworkLoad to enable the button, even if the image is broken,
+        // so the user isn't stuck. They can try downloading the frame-only card.
+        if (onArtworkLoad) {
+            onArtworkLoad();
+        }
+    }
 
     return (
         <div ref={ref} className="w-[375px] h-[525px] p-[10px] bg-pokemon-yellow font-sans flex flex-col justify-between border-[6px] border-pokemon-blue rounded-[20px] text-black overflow-hidden">
@@ -76,6 +72,8 @@ const PokemonCard = forwardRef<HTMLDivElement, PokemonCardProps>(({ cardData, ar
                                 width="100%" 
                                 height="100%" 
                                 preserveAspectRatio="xMidYMid slice"
+                                onLoad={onArtworkLoad}
+                                onError={handleArtworkError}
                             />
                         </svg>
                     )}
