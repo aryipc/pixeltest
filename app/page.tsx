@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useCallback } from 'react';
+import Link from 'next/link';
 import { generateTrenchmonCard, GenerationResult } from '@/services/geminiService';
 import Header from '@/components/Header';
 import PromptInput from '@/components/PromptInput';
@@ -52,6 +53,13 @@ export default function Home() {
           />
         </main>
         <footer className="mt-12 text-center text-xs text-light-gray">
+          <div className="flex justify-center items-center gap-4 mb-2">
+            <Link href="/about" className="hover:text-solana-green transition-colors">About</Link>
+            <span className="opacity-50">|</span>
+            <Link href="/guide" className="hover:text-solana-green transition-colors">Card Guide</Link>
+            <span className="opacity-50">|</span>
+            <Link href="/privacy" className="hover:text-solana-green transition-colors">Privacy Policy</Link>
+          </div>
           <p>Powered by TCG TEAM &copy; 2025</p>
         </footer>
       </div>

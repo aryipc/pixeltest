@@ -72,7 +72,7 @@ const PokemonCard = forwardRef<HTMLDivElement, TrenchmonCardProps>(({ cardData, 
                 <div className="flex justify-between items-baseline px-2 pt-1">
                     <h2 className={`title-font font-bold ${rarityStyle.text}`} style={{fontSize: '18px'}}>{trenchmon_name}</h2>
                     <div className="flex items-center">
-                        <span className="font-bold mr-2 title-font text-white" style={{fontSize: '14px'}}>{mc}</span>
+                        <span className="font-bold mr-2 title-font text-degen-red" style={{fontSize: '14px'}}>HP {attack_1_damage}</span>
                         <div className={`w-7 h-7 rounded-full ${typeStyle.bg} flex items-center justify-center text-lg`}>
                             {typeStyle.symbol}
                         </div>
@@ -98,6 +98,10 @@ const PokemonCard = forwardRef<HTMLDivElement, TrenchmonCardProps>(({ cardData, 
                     <div className="flex-1">
                         <p className="text-[10px] opacity-70">DEV</p>
                         <p className="font-bold">{dev}</p>
+                    </div>
+                    <div className="flex-1">
+                        <p className="text-[10px] opacity-70">MC</p>
+                        <p className="font-bold">{mc}</p>
                     </div>
                      <div className="flex-1">
                         <p className="text-[10px] opacity-70">RISK</p>
