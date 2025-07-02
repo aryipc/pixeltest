@@ -43,11 +43,14 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
   // This callback is passed to PokemonCard and triggered by the artwork's `onLoad` event.
   const handleArtworkLoad = useCallback(() => {
     setIsArtworkLoaded(true);
-    // Add a short delay before flipping to ensure a smooth animation
-    setTimeout(() => {
-        setIsRevealed(true);
-    }, 100);
   }, []);
+
+  const handleCardClick = () => {
+    // Only allow flipping if the artwork is ready and it hasn't been revealed yet.
+    if (isArtworkLoaded && !isRevealed) {
+      setIsRevealed(true);
+    }
+  };
 
   const captureAndDownload = useCallback(async () => {
     const node = cardRef.current;
@@ -148,7 +151,14 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
         {isLoading && <Loader />}
         {!isLoading && generationResult && (
           <div className="w-full h-full max-w-[375px] aspect-[5/7]">
-            <div className="flip-container">
+            <div 
+              className={`flip-container ${isArtworkLoaded && !isRevealed ? 'cursor-pointer' : ''}`}
+              onClick={handleCardClick}
+              role="button"
+              tabIndex={isArtworkLoaded && !isRevealed ? 0 : -1}
+              aria-label={isRevealed ? "Generated Trenchmon Card" : "Click to reveal your card"}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleCardClick(); }}
+            >
                 <div className={`flipper ${isRevealed ? 'is-flipped' : ''}`}>
                     <div className="card-face card-back">
                         <CardBack />

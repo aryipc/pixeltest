@@ -53,12 +53,16 @@ export default function Home() {
           />
         </main>
         <footer className="mt-12 text-center text-xs text-light-gray">
-          <div className="flex justify-center items-center gap-4 mb-2">
+          <div className="flex justify-center items-center flex-wrap gap-4 mb-2">
             <Link href="/guide" className="hover:text-solana-green transition-colors">Card Guide</Link>
             <span className="opacity-50">|</span>
             <Link href="/privacy" className="hover:text-solana-green transition-colors">Privacy Policy</Link>
             <span className="opacity-50">|</span>
             <Link href="/about" className="hover:text-solana-green transition-colors">About</Link>
+            <span className="opacity-50">|</span>
+            <Link href="https://x.com/" target="_blank" rel="noopener noreferrer" className="hover:text-solana-green transition-colors">X</Link>
+            <span className="opacity-50">|</span>
+            <Link href="https://x.com/" target="_blank" rel="noopener noreferrer" className="hover:text-solana-green transition-colors">Community</Link>
           </div>
           <p>Powered by TCG TEAM &copy; 2025</p>
         </footer>
