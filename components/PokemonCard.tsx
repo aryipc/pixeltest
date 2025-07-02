@@ -62,7 +62,7 @@ const PokemonCard = forwardRef<HTMLDivElement, TrenchmonCardProps>(({ cardData, 
         }
     }, [artworkUrl, onArtworkLoad]);
     
-    const artworkContainerClass = `mx-2.5 mt-1 border-[3px] ${rarityStyle.border} rounded-lg overflow-hidden h-[40%] grid-background`;
+    const artworkContainerClass = `mx-2.5 mt-1 border-[3px] ${rarityStyle.border} rounded-lg overflow-hidden h-[38%] grid-background`;
 
     return (
         <div ref={ref} className={`w-full h-full p-[5px] bg-card-bg font-sans flex flex-col justify-between border-[6px] rounded-[20px] text-white overflow-hidden transition-shadow duration-300 ${rarityStyle.border} ${rarityStyle.shadow}`}>
@@ -70,10 +70,10 @@ const PokemonCard = forwardRef<HTMLDivElement, TrenchmonCardProps>(({ cardData, 
             <div>
                 {/* Header */}
                 <div className="flex justify-between items-baseline px-2 pt-1">
-                    <h2 className={`title-font font-bold ${rarityStyle.text} text-base`}>{trenchmon_name}</h2>
+                    <h2 className={`title-font font-bold ${rarityStyle.text} text-[15px] leading-tight`}>{trenchmon_name}</h2>
                     <div className="flex items-center">
-                        <span className="font-bold mr-2 title-font text-degen-red text-xs">HP {attack_1_damage}</span>
-                        <div className={`w-7 h-7 rounded-full ${typeStyle.bg} flex items-center justify-center text-base`}>
+                        <span className="font-bold mr-2 title-font text-degen-red text-[11px]">HP {attack_1_damage}</span>
+                        <div className={`w-7 h-7 rounded-full ${typeStyle.bg} flex items-center justify-center text-sm`}>
                             {typeStyle.symbol}
                         </div>
                     </div>
@@ -94,21 +94,21 @@ const PokemonCard = forwardRef<HTMLDivElement, TrenchmonCardProps>(({ cardData, 
                 </div>
 
                  {/* Info Bar */}
-                <div className="flex justify-between items-center text-center px-2 mt-1 text-xs title-font">
+                <div className="flex justify-between items-center text-center px-2 mt-1 text-[10px] title-font">
                     <div className="flex-1">
-                        <p className="text-[9px] opacity-70">DEV</p>
+                        <p className="text-[8px] opacity-70">DEV</p>
                         <p className="font-bold">{dev}</p>
                     </div>
                     <div className="flex-1">
-                        <p className="text-[9px] opacity-70">MC</p>
+                        <p className="text-[8px] opacity-70">MC</p>
                         <p className="font-bold">{mc}</p>
                     </div>
                      <div className="flex-1">
-                        <p className="text-[9px] opacity-70">RISK</p>
+                        <p className="text-[8px] opacity-70">RISK</p>
                         <p className={`font-bold ${riskColorClass}`}>{risk_level}</p>
                     </div>
                     <div className="flex-1">
-                        <p className="text-[9px] opacity-70">RARITY</p>
+                        <p className="text-[8px] opacity-70">RARITY</p>
                         <p className={`font-bold ${rarityStyle.text}`}>{rarity}</p>
                     </div>
                 </div>
@@ -122,18 +122,18 @@ const PokemonCard = forwardRef<HTMLDivElement, TrenchmonCardProps>(({ cardData, 
                         <div className="flex justify-between items-center">
                             <div className="flex items-center gap-2">
                                 <div className={`w-5 h-5 rounded-full ${typeStyle.bg} flex items-center justify-center text-xs`}>{typeStyle.symbol}</div>
-                                <h3 className="font-bold title-font text-sm">{attack_1_name}</h3>
+                                <h3 className="font-bold title-font text-xs">{attack_1_name}</h3>
                             </div>
-                            <span className="font-bold title-font text-lg">{attack_1_damage}</span>
+                            <span className="font-bold title-font text-base">{attack_1_damage}</span>
                         </div>
-                        <p className="leading-tight mt-1 text-xs">
+                        <p className="leading-tight mt-1 text-[11px]">
                             {attack_1_description}
                         </p>
                     </div>
 
                     {/* Trench Log */}
                     <div className="mt-1 pt-1 border-t-2 border-dotted border-border-color">
-                        <p className="italic leading-tight text-light-gray text-[11px]">
+                        <p className="italic leading-tight text-light-gray text-[10px]">
                            <span className="font-bold not-italic text-white">Trench Log: </span>{trench_log}
                         </p>
                     </div>
@@ -141,7 +141,7 @@ const PokemonCard = forwardRef<HTMLDivElement, TrenchmonCardProps>(({ cardData, 
                 
                 {/* Footer */}
                 <div className="text-center mt-1">
-                    <p className="title-font opacity-50 text-[8px]">&copy;2024 Trenchmon Card Generator</p>
+                    <p className="title-font opacity-50 text-[7px]">&copy;2024 Trenchmon Card Generator</p>
                 </div>
             </div>
         </div>
