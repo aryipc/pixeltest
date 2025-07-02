@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 const Header: React.FC = () => {
@@ -8,7 +7,7 @@ const Header: React.FC = () => {
         Trenchmon Card Generator
       </h1>
       <p className="text-solana-purple mt-2 text-xs sm:text-sm">
-        Turn any image into a Solana memecoin card
+        APE any image into a legendary memecoin card.
       </p>
     </header>
   );

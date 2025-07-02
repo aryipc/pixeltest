@@ -140,7 +140,7 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
   };
 
   return (
-    <div className="w-full p-4 bg-card-bg border-2 border-border-color rounded-lg shadow-lg flex flex-col gap-4 h-full">
+    <div className="w-full p-4 bg-card-bg border-2 border-border-color rounded-lg shadow-lg flex flex-col gap-4">
       <DownloadWarningModal isOpen={isWarningModalOpen} onClose={handleCloseWarning} />
       
       <h2 className="text-xl text-center text-solana-purple">Output</h2>

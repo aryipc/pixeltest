@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useCallback, useState, useEffect } from 'react';
@@ -47,7 +46,7 @@ const PromptInput: React.FC<PromptInputProps> = ({ onGenerate, isLoading, error,
   };
 
   return (
-    <div className="w-full p-4 bg-card-bg border-2 border-border-color rounded-lg shadow-lg flex flex-col gap-4 h-full">
+    <div className="w-full p-4 bg-card-bg border-2 border-border-color rounded-lg shadow-lg flex flex-col gap-4">
       <h2 className="text-xl text-center text-solana-purple">Input</h2>
       
       <label 
