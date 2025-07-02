@@ -1,3 +1,4 @@
+
 import React from 'react';
 import Link from 'next/link';
 
@@ -19,10 +20,10 @@ const AboutPage = () => {
             <p>Trenchmon Card Generator is a web application that transforms any image into a unique, collectible "Trenchmon" trading card. It's inspired by the fast-paced, degen culture of Solana memecoins and the classic monster-collecting games we love.</p>
 
             <h3 className="text-xl font-bold text-solana-purple pt-4">How It Works</h3>
-            <p>We use powerful AI from Google to bring your cards to life:</p>
+            <p>We use a powerful and reliable AI system to bring your cards to life:</p>
             <ul className="list-disc list-inside space-y-2 pl-4">
-              <li><strong>Google Gemini:</strong> Analyzes your image to creatively generate all the card's stats, attacks, and lore, infusing it with authentic crypto slang.</li>
-              <li><strong>Google Imagen:</strong> Generates the unique, gritty artwork for your Trenchmon, based on Gemini's description of the subject.</li>
+              <li><strong>Vision Analysis:</strong> A sophisticated AI analyzes your image to creatively generate all the card's stats, attacks, and lore, infusing it with authentic crypto slang.</li>
+              <li><strong>Artwork Generation:</strong> A cutting-edge image generation model creates the unique, gritty artwork for your Trenchmon, based on the AI's description of the subject.</li>
             </ul>
             
             <h3 className="text-xl font-bold text-solana-purple pt-4">The Mission</h3>

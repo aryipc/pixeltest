@@ -1,3 +1,4 @@
+
 import React from 'react';
 import Link from 'next/link';
 
@@ -9,6 +10,12 @@ const typeInfo = [
   { name: 'Diamond-Hand', symbol: '💎', color: 'bg-cyan-300 text-black', description: 'Unfazed by volatility. This Trenchmon holds through 100x gains and -99% losses without flinching.', likelihood: 'Uncommon' },
   { name: 'Based', symbol: '✅', color: 'bg-green-500 text-white', description: 'A fundamentally sound and respected entity in the ecosystem. Does things the right way.', likelihood: 'Rare' },
   { name: 'Cringe', symbol: '🤢', color: 'bg-yellow-800 text-white', description: 'Embodies awkward or out-of-touch behavior. Tries too hard to fit in with the degen culture.', likelihood: 'Common' },
+];
+
+const devInfo = [
+    { name: 'Anon Dev', description: 'Works in the shadows. Their identity is a mystery, their code is law. Could be a genius or a ghost.', likelihood: 'Very Common' },
+    { name: 'Based Dev', description: 'A transparent and respected builder who ships quality products and engages with the community. A rare gem.', likelihood: 'Rare' },
+    { name: 'Rug Puller', description: "A malicious actor who creates projects with the sole intention of abandoning them and running away with investors' funds.", likelihood: 'Uncommon' },
 ];
 
 const riskInfo = [
@@ -57,6 +64,20 @@ const GuidePage = () => {
                   </div>
                 </div>
               ))}
+            </div>
+          </section>
+
+          {/* Developer Types */}
+          <section className="mb-8">
+            <h3 className="text-xl font-bold text-solana-purple mb-4">Developer Types</h3>
+            <div className="space-y-4 text-sm">
+                {devInfo.map(dev => (
+                    <div key={dev.name}>
+                        <h4 className="font-bold text-base text-white">{dev.name}</h4>
+                        <p className="text-light-gray">{dev.description}</p>
+                        <p className="text-xs mt-1 text-light-gray"><strong className="font-semibold text-solana-purple/90">Appearance Rate:</strong> {dev.likelihood}</p>
+                    </div>
+                ))}
             </div>
           </section>
 

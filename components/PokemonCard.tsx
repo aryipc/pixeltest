@@ -64,6 +64,10 @@ const PokemonCard = forwardRef<HTMLDivElement, TrenchmonCardProps>(({ cardData, 
     
     const artworkContainerClass = `mx-2.5 mt-1 border-[3px] ${rarityStyle.border} rounded-lg overflow-hidden h-[38%] grid-background flex-shrink-0`;
 
+    // Simplify the 'dev' and 'mc' text for display
+    const displayDev = dev.replace(' Dev', '');
+    const displayMc = mc.replace(' MC', '');
+
     return (
         <div ref={ref} className={`w-full h-full p-[5px] bg-card-bg font-sans flex flex-col border-[6px] rounded-[20px] text-white overflow-hidden ${rarityStyle.border} ${rarityStyle.shadow}`}>
             
@@ -96,11 +100,11 @@ const PokemonCard = forwardRef<HTMLDivElement, TrenchmonCardProps>(({ cardData, 
             <div className="flex justify-between items-center text-center px-2 mt-1 text-[10px] title-font flex-shrink-0">
                 <div className="flex-1">
                     <p className="text-[8px] opacity-70">DEV</p>
-                    <p className="font-bold">{dev}</p>
+                    <p className="font-bold">{displayDev}</p>
                 </div>
                 <div className="flex-1">
                     <p className="text-[8px] opacity-70">MC</p>
-                    <p className="font-bold">{mc}</p>
+                    <p className="font-bold">{displayMc}</p>
                 </div>
                  <div className="flex-1">
                     <p className="text-[8px] opacity-70">RISK</p>
@@ -139,7 +143,7 @@ const PokemonCard = forwardRef<HTMLDivElement, TrenchmonCardProps>(({ cardData, 
             
             {/* Footer */}
             <div className="text-center mt-1 flex-shrink-0">
-                <p className="title-font opacity-50 text-[7px]">&copy;2024 Trenchmon Card Generator</p>
+                <p className="title-font opacity-50 text-[7px]">Trenchmon Card Generator</p>
             </div>
         </div>
     );
