@@ -57,9 +57,24 @@ const PokemonCard = forwardRef<HTMLDivElement, TrenchmonCardProps>(({ cardData, 
 
     useEffect(() => {
         const imgElement = imageRef.current;
-        if (imgElement?.complete && artworkUrl) {
+        if (!imgElement) return;
+
+        const handleLoad = () => {
             onArtworkLoad();
+        };
+
+        // If the image is already loaded (e.g. from cache), call the handler.
+        if (imgElement.complete) {
+            handleLoad();
+        } else {
+            // Otherwise, add an event listener.
+            imgElement.addEventListener('load', handleLoad);
         }
+
+        // Cleanup: remove the event listener when the component unmounts or deps change.
+        return () => {
+            imgElement.removeEventListener('load', handleLoad);
+        };
     }, [artworkUrl, onArtworkLoad]);
     
     const artworkContainerClass = `mx-2.5 mt-1 border-[3px] ${rarityStyle.border} rounded-lg overflow-hidden h-[38%] grid-background flex-shrink-0`;
@@ -89,7 +104,6 @@ const PokemonCard = forwardRef<HTMLDivElement, TrenchmonCardProps>(({ cardData, 
                         ref={imageRef}
                         src={artworkUrl}
                         alt={`Artwork for ${trenchmon_name}`}
-                        onLoad={onArtworkLoad}
                         crossOrigin="anonymous"
                         className="w-full h-full object-cover"
                     />
