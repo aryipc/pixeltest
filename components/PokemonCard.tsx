@@ -55,26 +55,14 @@ const PokemonCard = forwardRef<HTMLDivElement, TrenchmonCardProps>(({ cardData, 
     }[risk_level] || 'text-white';
 
 
+    // This combined approach ensures the image load is detected on all platforms.
+    // 1. The `onLoad` prop handles the standard async loading case (works for mobile).
+    // 2. The `useEffect` handles the case where the image is already cached and 'complete'
+    //    by the time the component mounts, which could cause `onLoad` to be missed on desktop.
     useEffect(() => {
-        const imgElement = imageRef.current;
-        if (!imgElement) return;
-
-        const handleLoad = () => {
+        if (imageRef.current?.complete) {
             onArtworkLoad();
-        };
-
-        // If the image is already loaded (e.g. from cache), call the handler.
-        if (imgElement.complete) {
-            handleLoad();
-        } else {
-            // Otherwise, add an event listener.
-            imgElement.addEventListener('load', handleLoad);
         }
-
-        // Cleanup: remove the event listener when the component unmounts or deps change.
-        return () => {
-            imgElement.removeEventListener('load', handleLoad);
-        };
     }, [artworkUrl, onArtworkLoad]);
     
     const artworkContainerClass = `mx-2.5 mt-1 border-[3px] ${rarityStyle.border} rounded-lg overflow-hidden h-[38%] grid-background flex-shrink-0`;
@@ -106,6 +94,7 @@ const PokemonCard = forwardRef<HTMLDivElement, TrenchmonCardProps>(({ cardData, 
                         alt={`Artwork for ${trenchmon_name}`}
                         crossOrigin="anonymous"
                         className="w-full h-full object-cover"
+                        onLoad={onArtworkLoad}
                     />
                 )}
             </div>
