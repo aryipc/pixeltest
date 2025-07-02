@@ -62,62 +62,59 @@ const PokemonCard = forwardRef<HTMLDivElement, TrenchmonCardProps>(({ cardData, 
         }
     }, [artworkUrl, onArtworkLoad]);
     
-    const artworkContainerClass = `mx-2.5 mt-1 border-[3px] ${rarityStyle.border} rounded-lg overflow-hidden h-[38%] grid-background`;
+    const artworkContainerClass = `mx-2.5 mt-1 border-[3px] ${rarityStyle.border} rounded-lg overflow-hidden h-[38%] grid-background flex-shrink-0`;
 
     return (
-        <div ref={ref} className={`w-full h-full p-[5px] bg-card-bg font-sans flex flex-col justify-between border-[6px] rounded-[20px] text-white overflow-hidden transition-shadow duration-300 ${rarityStyle.border} ${rarityStyle.shadow}`}>
-            {/* Top Section */}
-            <div>
-                {/* Header */}
-                <div className="flex justify-between items-baseline px-2 pt-1">
-                    <h2 className={`title-font font-bold ${rarityStyle.text} text-[15px] leading-tight`}>{trenchmon_name}</h2>
-                    <div className="flex items-center">
-                        <span className="font-bold mr-2 title-font text-degen-red text-[11px]">HP {attack_1_damage}</span>
-                        <div className={`w-7 h-7 rounded-full ${typeStyle.bg} flex items-center justify-center text-sm`}>
-                            {typeStyle.symbol}
-                        </div>
-                    </div>
-                </div>
-
-                {/* Artwork */}
-                <div className={artworkContainerClass}>
-                    {artworkUrl && (
-                        <img
-                            ref={imageRef}
-                            src={artworkUrl}
-                            alt={`Artwork for ${trenchmon_name}`}
-                            onLoad={onArtworkLoad}
-                            crossOrigin="anonymous"
-                            className="w-full h-full object-cover"
-                        />
-                    )}
-                </div>
-
-                 {/* Info Bar */}
-                <div className="flex justify-between items-center text-center px-2 mt-1 text-[10px] title-font">
-                    <div className="flex-1">
-                        <p className="text-[8px] opacity-70">DEV</p>
-                        <p className="font-bold">{dev}</p>
-                    </div>
-                    <div className="flex-1">
-                        <p className="text-[8px] opacity-70">MC</p>
-                        <p className="font-bold">{mc}</p>
-                    </div>
-                     <div className="flex-1">
-                        <p className="text-[8px] opacity-70">RISK</p>
-                        <p className={`font-bold ${riskColorClass}`}>{risk_level}</p>
-                    </div>
-                    <div className="flex-1">
-                        <p className="text-[8px] opacity-70">RARITY</p>
-                        <p className={`font-bold ${rarityStyle.text}`}>{rarity}</p>
+        <div ref={ref} className={`w-full h-full p-[5px] bg-card-bg font-sans flex flex-col border-[6px] rounded-[20px] text-white overflow-hidden ${rarityStyle.border} ${rarityStyle.shadow}`}>
+            
+            {/* Header */}
+            <div className="flex justify-between items-baseline px-2 pt-1 flex-shrink-0">
+                <h2 className={`title-font font-bold ${rarityStyle.text} text-[15px] leading-tight`}>{trenchmon_name}</h2>
+                <div className="flex items-center">
+                    <span className="font-bold mr-2 title-font text-degen-red text-[11px]">HP {attack_1_damage}</span>
+                    <div className={`w-7 h-7 rounded-full ${typeStyle.bg} flex items-center justify-center text-sm`}>
+                        {typeStyle.symbol}
                     </div>
                 </div>
             </div>
 
-            {/* Bottom Section */}
-            <div className="flex flex-col justify-end flex-grow">
-                {/* Attacks Section */}
-                <div className="mx-2.5 mt-1 p-1.5 border-[3px] bg-dark-bg/50 border-border-color rounded-lg flex flex-col gap-1">
+            {/* Artwork */}
+            <div className={artworkContainerClass}>
+                {artworkUrl && (
+                    <img
+                        ref={imageRef}
+                        src={artworkUrl}
+                        alt={`Artwork for ${trenchmon_name}`}
+                        onLoad={onArtworkLoad}
+                        crossOrigin="anonymous"
+                        className="w-full h-full object-cover"
+                    />
+                )}
+            </div>
+
+             {/* Info Bar */}
+            <div className="flex justify-between items-center text-center px-2 mt-1 text-[10px] title-font flex-shrink-0">
+                <div className="flex-1">
+                    <p className="text-[8px] opacity-70">DEV</p>
+                    <p className="font-bold">{dev}</p>
+                </div>
+                <div className="flex-1">
+                    <p className="text-[8px] opacity-70">MC</p>
+                    <p className="font-bold">{mc}</p>
+                </div>
+                 <div className="flex-1">
+                    <p className="text-[8px] opacity-70">RISK</p>
+                    <p className={`font-bold ${riskColorClass}`}>{risk_level}</p>
+                </div>
+                <div className="flex-1">
+                    <p className="text-[8px] opacity-70">RARITY</p>
+                    <p className={`font-bold ${rarityStyle.text}`}>{rarity}</p>
+                </div>
+            </div>
+
+            {/* Attacks Section & Log - This part will grow to fill space */}
+            <div className="flex-grow flex flex-col justify-end mx-2.5 mt-1 min-h-0">
+                <div className="p-1.5 border-[3px] bg-dark-bg/50 border-border-color rounded-lg flex flex-col gap-1">
                     <div className="attack">
                         <div className="flex justify-between items-center">
                             <div className="flex items-center gap-2">
@@ -138,11 +135,11 @@ const PokemonCard = forwardRef<HTMLDivElement, TrenchmonCardProps>(({ cardData, 
                         </p>
                     </div>
                 </div>
-                
-                {/* Footer */}
-                <div className="text-center mt-1">
-                    <p className="title-font opacity-50 text-[7px]">&copy;2024 Trenchmon Card Generator</p>
-                </div>
+            </div>
+            
+            {/* Footer */}
+            <div className="text-center mt-1 flex-shrink-0">
+                <p className="title-font opacity-50 text-[7px]">&copy;2024 Trenchmon Card Generator</p>
             </div>
         </div>
     );
