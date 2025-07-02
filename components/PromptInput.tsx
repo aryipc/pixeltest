@@ -52,7 +52,7 @@ const PromptInput: React.FC<PromptInputProps> = ({ onGenerate, isLoading, error,
       <label 
         onDrop={onDrop}
         onDragOver={onDragOver}
-        className="w-full aspect-[3/4] bg-dark-bg border-2 border-dashed border-solana-green/50 rounded-md flex items-center justify-center text-center p-2 cursor-pointer hover:bg-black/20 transition-colors"
+        className="w-full aspect-square bg-dark-bg border-2 border-dashed border-solana-green/50 rounded-md flex items-center justify-center text-center p-2 cursor-pointer hover:bg-black/20 transition-colors"
       >
         <input type="file" accept="image/png, image/jpeg, image/webp" className="hidden" onChange={onFileChange} disabled={isLoading} />
         {previewUrl ? (

@@ -7,7 +7,7 @@ const Header: React.FC = () => {
         Trenchmon Card Generator
       </h1>
       <p className="text-solana-purple mt-2 text-xs sm:text-sm">
-        APE any image into a legendary memecoin card.
+        APE any image into a Trenchmon Card.
       </p>
     </header>
   );
