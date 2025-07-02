@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useRef, useCallback, useState, useEffect } from 'react';
@@ -6,6 +5,7 @@ import { toPng } from 'html-to-image';
 import Loader from './Loader';
 import PokemonCard from './PokemonCard';
 import DownloadWarningModal from './DownloadWarningModal';
+import CardBack from './CardBack';
 import type { GenerationResult } from '@/services/geminiService';
 
 interface ImageDisplayProps {
@@ -28,17 +28,25 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
   const [isCapturing, setIsCapturing] = useState(false);
   const [hasShownIosWarning, setHasShownIosWarning] = useState(false);
   const [isWarningModalOpen, setIsWarningModalOpen] = useState(false);
+  const [isRevealed, setIsRevealed] = useState(false);
 
   // When a new card is generated, reset the artwork loaded and warning states.
   useEffect(() => {
     setIsArtworkLoaded(false);
     setHasShownIosWarning(false);
     setIsWarningModalOpen(false);
+    if (generationResult) {
+      setIsRevealed(false);
+    }
   }, [generationResult]);
 
   // This callback is passed to PokemonCard and triggered by the artwork's `onLoad` event.
   const handleArtworkLoad = useCallback(() => {
     setIsArtworkLoaded(true);
+    // Add a short delay before flipping to ensure a smooth animation
+    setTimeout(() => {
+        setIsRevealed(true);
+    }, 100);
   }, []);
 
   const captureAndDownload = useCallback(async () => {
@@ -139,13 +147,20 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
       <div className="w-full min-h-[60vh] md:min-h-0 bg-dark-bg border-2 border-solana-green/50 rounded-lg flex items-center justify-center overflow-auto p-2">
         {isLoading && <Loader />}
         {!isLoading && generationResult && (
-          <div className="w-full max-w-sm mx-auto flex justify-center">
-             <PokemonCard 
-                ref={cardRef} 
-                {...generationResult} 
-                isCapturing={isCapturing}
-                onArtworkLoad={handleArtworkLoad}
-             />
+          <div className="w-full max-w-sm mx-auto flex justify-center flip-container">
+            <div className={`flipper ${isRevealed ? 'is-flipped' : ''}`}>
+                <div className="card-face card-back">
+                    <CardBack />
+                </div>
+                <div className="card-face card-front">
+                    <PokemonCard 
+                        ref={cardRef} 
+                        {...generationResult} 
+                        isCapturing={isCapturing}
+                        onArtworkLoad={handleArtworkLoad}
+                    />
+                </div>
+            </div>
           </div>
         )}
         {!isLoading && !generationResult && <Placeholder />}

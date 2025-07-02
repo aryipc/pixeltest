@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { forwardRef, useRef, useEffect } from 'react';
@@ -47,6 +46,15 @@ const PokemonCard = forwardRef<HTMLDivElement, TrenchmonCardProps>(({ cardData, 
     const rarityStyle = rarityStyles[rarity] || rarityStyles.default;
     const imageRef = useRef<HTMLImageElement>(null);
 
+    const riskColorClass = {
+        'SAFU': 'text-solana-green',
+        'Low': 'text-green-400',
+        'Medium': 'text-yellow-400',
+        'High': 'text-orange-500',
+        'DEGEN': 'text-degen-red',
+    }[risk_level] || 'text-white';
+
+
     useEffect(() => {
         const imgElement = imageRef.current;
         if (imgElement?.complete && artworkUrl) {
@@ -93,7 +101,7 @@ const PokemonCard = forwardRef<HTMLDivElement, TrenchmonCardProps>(({ cardData, 
                     </div>
                      <div className="flex-1">
                         <p className="text-[10px] opacity-70">RISK</p>
-                        <p className="font-bold">{risk_level}</p>
+                        <p className={`font-bold ${riskColorClass}`}>{risk_level}</p>
                     </div>
                     <div className="flex-1">
                         <p className="text-[10px] opacity-70">RARITY</p>
