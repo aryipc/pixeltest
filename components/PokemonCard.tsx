@@ -116,8 +116,8 @@ const PokemonCard = forwardRef<HTMLDivElement, TrenchmonCardProps>(({ cardData, 
                 </div>
             </div>
 
-            {/* Attacks Section & Log - This part will grow to fill space */}
-            <div className="flex-grow flex flex-col justify-end mx-2.5 mt-1 min-h-0">
+            {/* Attacks Section & Log */}
+            <div className="mx-2.5 mt-1 flex-shrink-0">
                 <div className="p-1.5 border-[3px] bg-dark-bg/50 border-border-color rounded-lg flex flex-col gap-1">
                     <div className="attack">
                         <div className="flex justify-between items-center">
@@ -141,6 +141,9 @@ const PokemonCard = forwardRef<HTMLDivElement, TrenchmonCardProps>(({ cardData, 
                 </div>
             </div>
             
+            {/* Spacer to push footer to the bottom */}
+            <div className="flex-grow"></div>
+
             {/* Footer */}
             <div className="text-center mt-1 flex-shrink-0">
                 <p className="title-font opacity-50 text-[7px]">Trenchmon Card Generator</p>
