@@ -1,19 +1,60 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 body {
+  font-family: 'Inter', sans-serif;
+  background-color: #121212;
+  color: #E0E0E0;
+}
+
+.title-font {
   font-family: 'Press Start 2P', cursive;
 }
 
-.holo-background {
-  background: linear-gradient(125deg, #ffc107, #ffeb3b, #8bc34a, #4dd0e1, #6890f0, #f06292, #ffc107);
-  background-size: 300% 300%;
-  animation: holographic-shine 6s ease-in-out infinite;
+.grid-background {
+  background-color: #1A1A1A;
+  background-image:
+    linear-gradient(rgba(45, 212, 191, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(45, 212, 191, 0.1) 1px, transparent 1px);
+  background-size: 20px 20px;
 }
 
-@keyframes holographic-shine {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+.legend-border {
+  animation: legendary-glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes legendary-glow {
+  from {
+    box-shadow: 0 0 5px #FFC107, 0 0 10px #FFC107, 0 0 15px #FFC107;
+  }
+  to {
+    box-shadow: 0 0 15px #FFC107, 0 0 25px #FFC107, 0 0 35px #FFC107;
+  }
+}
+
+.k-line-loader path {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: k-line-draw 2s ease-in-out infinite;
+}
+
+@keyframes k-line-draw {
+  0% {
+    stroke-dashoffset: 100;
+    opacity: 0;
+  }
+  30% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  70% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: -100;
+    opacity: 0;
+  }
 }

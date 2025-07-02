@@ -1,3 +1,4 @@
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -8,9 +9,19 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'pokemon-yellow': '#ffcb05',
-        'pokemon-blue': '#2a75bb',
-        'card-b-gold': '#c7a008',
+        'solana-green': '#14F195',
+        'solana-purple': '#B069FF',
+        'degen-red': '#FF4D4D',
+        'dark-bg': '#121212',
+        'card-bg': '#1A1A1A',
+        'light-gray': '#A0AEC0',
+        'border-color': '#4A5568',
+        
+        'rarity-common': '#90A4AE',
+        'rarity-uncommon': '#4CAF50',
+        'rarity-rare': '#2196F3',
+        'rarity-epic': '#9C27B0',
+        'rarity-legendary': '#FFC107',
       }
     },
   },

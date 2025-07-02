@@ -1,3 +1,4 @@
+
 import { GoogleGenAI } from "@google/genai";
 
 // This function will be triggered by POST requests to /api/generate-pokemon-card
@@ -29,8 +30,6 @@ export async function POST(request: Request) {
   // Helper function to convert File to a GoogleGenAI.Part object.
   const fileToGenerativePart = async (file: File) => {
     const arrayBuffer = await file.arrayBuffer();
-    // In some environments (like Edge Functions), the 'Buffer' object is not available.
-    // We can convert the ArrayBuffer to a Base64 string manually.
     const uint8Array = new Uint8Array(arrayBuffer);
     let binaryString = '';
     for (let i = 0; i < uint8Array.length; i++) {
@@ -51,31 +50,35 @@ export async function POST(request: Request) {
     const imagePart = await fileToGenerativePart(imageFile);
 
     // Step 1: Generate structured card data using the vision model.
-    const promptForVisionModel = `You are a creative assistant that designs Pokémon cards. Analyze the user's image and invent the details for a new Pokémon.
+    const promptForVisionModel = `You are a creative assistant that designs Trenchmon cards, inspired by the chaotic and degen world of Solana memecoins. Analyze the user's image and invent the details for a new Trenchmon.
 
     **YOUR TASK:**
-    Based on the image, generate a JSON object with the following structure:
+    Based on the image, generate a JSON object with the following structure. Embrace the memecoin slang and culture in your text generations.
+
     {
-      "subject_description": "A detailed visual description of the main subject in the user's image. For example: 'A cute, small white dog wearing a traditional pink and red floral kimono.'",
-      "pokemon_name": "A creative, one- or two-word Pokémon name for the subject. e.g., 'Kimoninu'",
-      "hp": "An HP value between 60 and 120. e.g., 70",
-      "pokemon_type": "A standard Pokémon type from this list: Grass, Fire, Water, Lightning, Psychic, Fighting, Colorless, Darkness, Metal, Dragon, Fairy. e.g., 'Fairy'",
-      "attack_1_name": "Name of a single attack. e.g., 'Charming Gaze'",
-      "attack_1_description": "A very short (10-15 words) description of the attack's effect. e.g., 'The opposing Pokémon is now Paralyzed by its cuteness.'",
-      "attack_1_damage": "The damage number for the attack (a multiple of 10). e.g., 40",
-      "pokedex_entry": "A short, creative Pokédex-style description (15-20 words). e.g., 'This Pokémon is adored for its elegant appearance and gentle nature. It often brings good fortune to its trainer.'"
+      "subject_description": "A detailed visual description of the main subject in the user's image. For example: 'A cartoon frog wearing a backwards baseball cap and gold chain.'",
+      "trenchmon_name": "A creative, one- or two-word memecoin-style name for the subject. e.g., 'Degen Toad'",
+      "mc": "A market cap value. This can be a string like '10K MC', '1.5M MC', or '300M MC'. Be creative based on the subject's vibe.",
+      "trenchmon_type": "A Trenchmon type from this list: Ape, Shill, Rug, Whale, Diamond-Hand, Based, Cringe.",
+      "dev": "A developer type from this list: Anon Dev, Based Dev, Rug Puller.",
+      "risk_level": "A risk level from this list: SAFU, Low, Medium, High, DEGEN.",
+      "rarity": "A rarity level from this list, chosen based on a combination of the other attributes (a 'Based Dev' with 'SAFU' risk is likely 'Legendary'): Common, Uncommon, Rare, Epic, Legendary.",
+      "attack_1_name": "Name of a single attack, using crypto slang. e.g., 'Diamond Hands'",
+      "attack_1_description": "A very short (10-15 words) description of the attack's effect, using crypto slang. e.g., 'This Trenchmon cannot be sold for 3 turns. It HODLs.'",
+      "attack_1_damage": "The damage number for the attack (a multiple of 10). e.g., 60",
+      "trench_log": "A short, creative project description, like a memecoin's 'about' section (15-25 words). e.g., 'Launched with no presale and a burnt LP, this Trenchmon is for the community. To the moon or to the trenches!'"
     }
 
     **RULES:**
     - All text values in the JSON must be in perfect, correctly-spelled English.
-    - The pokemon_type MUST be one of the provided options.
+    - The trenchmon_type, dev, risk_level, and rarity MUST be one of the provided options.
     - Your output MUST be ONLY the JSON object, with no other text, comments, or markdown formatting.`;
 
     const visionResponse = await ai.models.generateContent({
         model: visionModel,
         contents: { parts: [imagePart, { text: promptForVisionModel }] },
         config: {
-            temperature: 0.8,
+            temperature: 0.9,
             responseMimeType: "application/json",
         }
     });
@@ -95,10 +98,10 @@ export async function POST(request: Request) {
         throw new Error("The AI failed to generate valid card data. Please try again.");
     }
     
-    // Step 2: Generate only the Pokémon's artwork using the image model.
+    // Step 2: Generate only the Trenchmon's artwork using the image model.
     const artworkPrompt = `Masterpiece, professional trading card game art. A portrait-style illustration (3:4 aspect ratio) of the following character: "${cardData.subject_description}".
-The character MUST be in the style of a classic Pokémon.
-The background should be simple, thematically matching a ${cardData.pokemon_type}-type Pokémon.
+The art style should be a gritty, sticker-style, or like a crypto-native PFP project. Edgy and cool.
+The background should be simple, thematically matching a ${cardData.trenchmon_type}-type Trenchmon.
 The image should be a centered, full-body shot of the character.
 Do NOT include any text, borders, or card elements. ONLY the artwork.`;
 
@@ -126,7 +129,7 @@ Do NOT include any text, borders, or card elements. ONLY the artwork.`;
         throw new Error("No artwork was generated by the API.");
     }
   } catch (error) {
-    console.error("Error in Pokémon card generation process:", error);
+    console.error("Error in Trenchmon card generation process:", error);
     const message = error instanceof Error ? error.message : "An unknown error occurred during generation.";
     return new Response(
         JSON.stringify({ message: `The API failed to process the request: ${message}` }),

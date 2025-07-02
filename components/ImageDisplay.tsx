@@ -14,11 +14,11 @@ interface ImageDisplayProps {
 }
 
 const Placeholder = () => (
-  <div className="flex flex-col items-center justify-center h-full text-gray-500 text-center p-4">
+  <div className="flex flex-col items-center justify-center h-full text-light-gray text-center p-4">
     <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1">
       <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
     </svg>
-    <p className="text-sm">Your generated Pokémon card will appear here.</p>
+    <p className="text-sm">Your generated Trenchmon card will appear here.</p>
   </div>
 );
 
@@ -60,7 +60,7 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
         cacheBust: true,
       });
       
-      const name = generationResult.cardData.pokemon_name || 'pokemon-card';
+      const name = generationResult.cardData.trenchmon_name || 'trenchmon-card';
       const fileName = `${name.toLowerCase().replace(/\s/g, '-')}.png`;
       
       const isDesktop = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
@@ -83,8 +83,8 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
             if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
               await navigator.share({
                 files: [file],
-                title: `Pokémon Card - ${generationResult.cardData.pokemon_name}`,
-                text: 'Check out the custom Pokémon card I generated!',
+                title: `Trenchmon Card - ${generationResult.cardData.trenchmon_name}`,
+                text: 'I just Minted this Trenchmon card! You think it can 100x? #Trenchmon #Solana $TRENCH',
               });
             } else {
               // If sharing is not supported, throw an error to trigger the catch block fallback.
@@ -106,7 +106,7 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
       }
     } catch (err: any) {
         console.error('Failed to capture or download card image:', err);
-        alert('Sorry, failed to download image. Please try again.');
+        alert('Sorry, failed to mint image. Please try again.');
     } finally {
       setIsCapturing(false);
     }
@@ -132,11 +132,11 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
   };
 
   return (
-    <div className="w-full p-4 bg-[#2c2c54] border-2 border-purple-500 rounded-lg shadow-lg flex flex-col gap-4 h-full">
+    <div className="w-full p-4 bg-card-bg border-2 border-border-color rounded-lg shadow-lg flex flex-col gap-4 h-full">
       <DownloadWarningModal isOpen={isWarningModalOpen} onClose={handleCloseWarning} />
       
-      <h2 className="text-xl text-center text-yellow-300">Output</h2>
-      <div className="w-full min-h-[60vh] md:min-h-0 bg-[#131325] border-2 border-cyan-400 rounded-lg flex items-center justify-center overflow-auto p-2">
+      <h2 className="text-xl text-center text-solana-purple">Output</h2>
+      <div className="w-full min-h-[60vh] md:min-h-0 bg-dark-bg border-2 border-solana-green/50 rounded-lg flex items-center justify-center overflow-auto p-2">
         {isLoading && <Loader />}
         {!isLoading && generationResult && (
           <div className="w-full max-w-sm mx-auto flex justify-center">
@@ -155,9 +155,9 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
             <button
                 onClick={handleDownload}
                 disabled={!isArtworkLoaded || isCapturing}
-                className="w-full px-4 py-3 bg-green-600 text-white font-bold rounded-md transition-all duration-200 ease-in-out enabled:hover:bg-green-700 enabled:active:scale-95 disabled:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-sm sm:text-base"
+                className="w-full px-4 py-3 bg-solana-purple text-white font-bold rounded-md transition-all duration-200 ease-in-out enabled:hover:bg-solana-purple/80 enabled:active:scale-95 disabled:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-sm sm:text-base"
             >
-                {isCapturing ? 'PREPARING IMAGE...' : (isArtworkLoaded ? 'DOWNLOAD CARD' : 'LOADING ARTWORK...')}
+                {isCapturing ? 'MINTING...' : (isArtworkLoaded ? 'MINT CARD' : 'ARTWORK COOKING...')}
             </button>
         )}
       </div>

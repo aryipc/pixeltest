@@ -1,13 +1,16 @@
 
 export interface CardData {
   subject_description: string;
-  pokemon_name: string;
-  hp: string;
-  pokemon_type: string;
+  trenchmon_name: string;
+  mc: string;
+  trenchmon_type: string;
+  dev: string;
+  risk_level: string;
+  rarity: string;
   attack_1_name: string;
   attack_1_description: string;
   attack_1_damage: string;
-  pokedex_entry: string;
+  trench_log: string;
 }
 
 export interface GenerationResult {
@@ -16,11 +19,12 @@ export interface GenerationResult {
 }
 
 
-export async function generatePokemonCard(imageFile: File): Promise<GenerationResult> {
+export async function generateTrenchmonCard(imageFile: File): Promise<GenerationResult> {
   const formData = new FormData();
   formData.append('image', imageFile);
 
   try {
+    // The endpoint name is kept for simplicity, but the logic is all new.
     const response = await fetch('/api/generate-pokemon-card', {
       method: 'POST',
       body: formData,
