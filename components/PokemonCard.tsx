@@ -70,10 +70,10 @@ const PokemonCard = forwardRef<HTMLDivElement, TrenchmonCardProps>(({ cardData, 
             <div>
                 {/* Header */}
                 <div className="flex justify-between items-baseline px-2 pt-1">
-                    <h2 className={`title-font font-bold ${rarityStyle.text}`} style={{fontSize: '18px'}}>{trenchmon_name}</h2>
+                    <h2 className={`title-font font-bold ${rarityStyle.text} text-base`}>{trenchmon_name}</h2>
                     <div className="flex items-center">
-                        <span className="font-bold mr-2 title-font text-degen-red" style={{fontSize: '14px'}}>HP {attack_1_damage}</span>
-                        <div className={`w-7 h-7 rounded-full ${typeStyle.bg} flex items-center justify-center text-lg`}>
+                        <span className="font-bold mr-2 title-font text-degen-red text-xs">HP {attack_1_damage}</span>
+                        <div className={`w-7 h-7 rounded-full ${typeStyle.bg} flex items-center justify-center text-base`}>
                             {typeStyle.symbol}
                         </div>
                     </div>
@@ -96,19 +96,19 @@ const PokemonCard = forwardRef<HTMLDivElement, TrenchmonCardProps>(({ cardData, 
                  {/* Info Bar */}
                 <div className="flex justify-between items-center text-center px-2 mt-1 text-xs title-font">
                     <div className="flex-1">
-                        <p className="text-[10px] opacity-70">DEV</p>
+                        <p className="text-[9px] opacity-70">DEV</p>
                         <p className="font-bold">{dev}</p>
                     </div>
                     <div className="flex-1">
-                        <p className="text-[10px] opacity-70">MC</p>
+                        <p className="text-[9px] opacity-70">MC</p>
                         <p className="font-bold">{mc}</p>
                     </div>
                      <div className="flex-1">
-                        <p className="text-[10px] opacity-70">RISK</p>
+                        <p className="text-[9px] opacity-70">RISK</p>
                         <p className={`font-bold ${riskColorClass}`}>{risk_level}</p>
                     </div>
                     <div className="flex-1">
-                        <p className="text-[10px] opacity-70">RARITY</p>
+                        <p className="text-[9px] opacity-70">RARITY</p>
                         <p className={`font-bold ${rarityStyle.text}`}>{rarity}</p>
                     </div>
                 </div>
@@ -117,31 +117,31 @@ const PokemonCard = forwardRef<HTMLDivElement, TrenchmonCardProps>(({ cardData, 
             {/* Bottom Section */}
             <div className="flex flex-col justify-end flex-grow">
                 {/* Attacks Section */}
-                <div className="mx-2.5 mt-1 p-2 border-[3px] bg-dark-bg/50 border-border-color rounded-lg flex flex-col gap-1">
+                <div className="mx-2.5 mt-1 p-1.5 border-[3px] bg-dark-bg/50 border-border-color rounded-lg flex flex-col gap-1">
                     <div className="attack">
                         <div className="flex justify-between items-center">
                             <div className="flex items-center gap-2">
-                                <div className={`w-6 h-6 rounded-full ${typeStyle.bg} flex items-center justify-center text-sm`}>{typeStyle.symbol}</div>
-                                <h3 className="font-bold title-font" style={{fontSize: '16px'}}>{attack_1_name}</h3>
+                                <div className={`w-5 h-5 rounded-full ${typeStyle.bg} flex items-center justify-center text-xs`}>{typeStyle.symbol}</div>
+                                <h3 className="font-bold title-font text-sm">{attack_1_name}</h3>
                             </div>
-                            <span className="font-bold title-font" style={{fontSize: '20px'}}>{attack_1_damage}</span>
+                            <span className="font-bold title-font text-lg">{attack_1_damage}</span>
                         </div>
-                        <p className="leading-tight mt-1" style={{fontSize: '13px'}}>
+                        <p className="leading-tight mt-1 text-xs">
                             {attack_1_description}
                         </p>
                     </div>
 
                     {/* Trench Log */}
-                    <div className="mt-2 pt-2 border-t-2 border-dotted border-border-color">
-                        <p className="italic leading-tight text-light-gray" style={{fontSize: '12px'}}>
+                    <div className="mt-1 pt-1 border-t-2 border-dotted border-border-color">
+                        <p className="italic leading-tight text-light-gray text-[11px]">
                            <span className="font-bold not-italic text-white">Trench Log: </span>{trench_log}
                         </p>
                     </div>
                 </div>
                 
                 {/* Footer */}
-                <div className="text-center py-1 mt-1">
-                    <p className="title-font opacity-50" style={{fontSize: '9px'}}>&copy;2024 Trenchmon Card Generator</p>
+                <div className="text-center mt-1">
+                    <p className="title-font opacity-50 text-[8px]">&copy;2024 Trenchmon Card Generator</p>
                 </div>
             </div>
         </div>
