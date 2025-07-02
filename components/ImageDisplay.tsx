@@ -144,21 +144,23 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({ generationResult, isLoading
       <DownloadWarningModal isOpen={isWarningModalOpen} onClose={handleCloseWarning} />
       
       <h2 className="text-xl text-center text-solana-purple">Output</h2>
-      <div className="w-full aspect-[5/7] bg-dark-bg border-2 border-solana-green/50 rounded-lg flex items-center justify-center overflow-auto p-2">
+      <div className="w-full aspect-[5/7] md:aspect-square bg-dark-bg border-2 border-solana-green/50 rounded-lg flex items-center justify-center overflow-hidden p-2">
         {isLoading && <Loader />}
         {!isLoading && generationResult && (
-          <div className="flip-container">
-            <div className={`flipper ${isRevealed ? 'is-flipped' : ''}`}>
-                <div className="card-face card-back">
-                    <CardBack />
-                </div>
-                <div className="card-face card-front">
-                    <PokemonCard 
-                        ref={cardRef} 
-                        {...generationResult} 
-                        isCapturing={isCapturing}
-                        onArtworkLoad={handleArtworkLoad}
-                    />
+          <div className="w-full h-full max-w-[375px] aspect-[5/7]">
+            <div className="flip-container">
+                <div className={`flipper ${isRevealed ? 'is-flipped' : ''}`}>
+                    <div className="card-face card-back">
+                        <CardBack />
+                    </div>
+                    <div className="card-face card-front">
+                        <PokemonCard 
+                            ref={cardRef} 
+                            {...generationResult} 
+                            isCapturing={isCapturing}
+                            onArtworkLoad={handleArtworkLoad}
+                        />
+                    </div>
                 </div>
             </div>
           </div>

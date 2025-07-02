@@ -62,10 +62,10 @@ const PokemonCard = forwardRef<HTMLDivElement, TrenchmonCardProps>(({ cardData, 
         }
     }, [artworkUrl, onArtworkLoad]);
     
-    const artworkContainerClass = `mx-[10px] mt-1 border-[3px] ${rarityStyle.border} rounded-lg overflow-hidden h-[210px] grid-background`;
+    const artworkContainerClass = `mx-2.5 mt-1 border-[3px] ${rarityStyle.border} rounded-lg overflow-hidden h-[40%] grid-background`;
 
     return (
-        <div ref={ref} className={`w-[375px] h-[525px] p-[5px] bg-card-bg font-sans flex flex-col justify-between border-[6px] rounded-[20px] text-white overflow-hidden transition-shadow duration-300 ${rarityStyle.border} ${rarityStyle.shadow}`}>
+        <div ref={ref} className={`w-full h-full p-[5px] bg-card-bg font-sans flex flex-col justify-between border-[6px] rounded-[20px] text-white overflow-hidden transition-shadow duration-300 ${rarityStyle.border} ${rarityStyle.shadow}`}>
             {/* Top Section */}
             <div>
                 {/* Header */}
@@ -117,7 +117,7 @@ const PokemonCard = forwardRef<HTMLDivElement, TrenchmonCardProps>(({ cardData, 
             {/* Bottom Section */}
             <div className="flex flex-col justify-end flex-grow">
                 {/* Attacks Section */}
-                <div className="mx-[10px] mt-1 p-2 border-[3px] bg-dark-bg/50 border-border-color rounded-lg flex flex-col gap-1">
+                <div className="mx-2.5 mt-1 p-2 border-[3px] bg-dark-bg/50 border-border-color rounded-lg flex flex-col gap-1">
                     <div className="attack">
                         <div className="flex justify-between items-center">
                             <div className="flex items-center gap-2">
